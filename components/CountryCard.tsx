@@ -2,7 +2,7 @@
 
 import React from "react";
 import { CountryCyberLaw } from "@/data/countries";
-import { Check, Plus, ArrowUpRight } from "lucide-react";
+import { Check, Plus, ArrowUpRight, Clock, ShieldAlert, Cpu } from "lucide-react";
 
 interface CountryCardProps {
   country: CountryCyberLaw;
@@ -10,6 +10,22 @@ interface CountryCardProps {
   onToggleCompare: (id: string) => void;
   onSelectCountry: (country: CountryCyberLaw) => void;
 }
+
+// Clean cross-platform country flag / badge styling to prevent Windows emoji fallback text glitches
+const COUNTRY_BADGES: Record<string, { label: string; accent: string }> = {
+  in: { label: "IND", accent: "bg-[#FF9933]/15 text-[#B45309] border-[#FF9933]/40" },
+  us: { label: "USA", accent: "bg-[#1E3A8A]/10 text-[#1E3A8A] border-[#1E3A8A]/30" },
+  eu: { label: "EU", accent: "bg-[#1E40AF]/10 text-[#1E40AF] border-[#1E40AF]/30" },
+  uk: { label: "GBR", accent: "bg-[#991B1B]/10 text-[#991B1B] border-[#991B1B]/30" },
+  sg: { label: "SGP", accent: "bg-[#DC2626]/10 text-[#DC2626] border-[#DC2626]/30" },
+  cn: { label: "CHN", accent: "bg-[#B91C1C]/10 text-[#B91C1C] border-[#B91C1C]/30" },
+  ae: { label: "ARE", accent: "bg-[#047857]/10 text-[#047857] border-[#047857]/30" },
+  au: { label: "AUS", accent: "bg-[#0369A1]/10 text-[#0369A1] border-[#0369A1]/30" },
+  ca: { label: "CAN", accent: "bg-[#DC2626]/10 text-[#DC2626] border-[#DC2626]/30" },
+  ee: { label: "EST", accent: "bg-[#0284C7]/10 text-[#0284C7] border-[#0284C7]/30" },
+  jp: { label: "JPN", accent: "bg-[#DC2626]/10 text-[#DC2626] border-[#DC2626]/30" },
+  za: { label: "ZAF", accent: "bg-[#047857]/10 text-[#047857] border-[#047857]/30" },
+};
 
 export const CountryCard: React.FC<CountryCardProps> = ({
   country,
@@ -29,36 +45,47 @@ export const CountryCard: React.FC<CountryCardProps> = ({
     return "bg-[#7C4A27]";
   };
 
+  // Concise penalty format without sprawling caveats
+  const getConcisePenalty = (fullPenalty: string) => {
+    if (!fullPenalty) return "Statutory Maximum";
+    if (fullPenalty.toLowerCase().includes("life")) return "Life Imprisonment";
+    if (fullPenalty.toLowerCase().includes("20 year")) return "Up to 20 Years";
+    if (fullPenalty.toLowerCase().includes("15 year")) return "Up to 15 Years";
+    if (fullPenalty.toLowerCase().includes("10 year")) return "Up to 10 Years";
+    if (fullPenalty.toLowerCase().includes("7 year")) return "Up to 7 Years";
+    if (fullPenalty.toLowerCase().includes("5 year")) return "Up to 5 Years";
+    if (fullPenalty.toLowerCase().includes("officer") || fullPenalty.toLowerCase().includes("ban")) return "Executive Disqualification";
+    return fullPenalty.split("(")[0].trim();
+  };
+
   const primaryStatute = country.primaryActs[0];
   const pendingCount = country.pendingOrDraftActs?.length || 0;
+  const badgeInfo = COUNTRY_BADGES[country.id] || { label: country.code, accent: "bg-[#F4EFE6] text-[#78716C] border-[#EAE5DB]" };
 
   return (
     <div className="editorial-card p-5 flex flex-col justify-between font-sans bg-white border border-[#EAE5DB] rounded-xl hover:border-[#D6CEBF] transition-all shadow-sm">
       <div>
-        {/* Header: Flag, Name, Region & Strictness Score */}
+        {/* Header: Styled Country Badge, Title & Strictness */}
         <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl select-none" role="img" aria-label={country.country}>
-              {country.flag}
+          <div className="flex items-center gap-2.5">
+            <span
+              className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded-md border ${badgeInfo.accent}`}
+            >
+              {badgeInfo.label}
             </span>
             <div>
-              <div className="flex items-center gap-1.5">
-                <h3 className="text-base font-bold text-[#1C1917] tracking-tight">
-                  {country.country}
-                </h3>
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#F4EFE6] text-[#78716C] font-semibold">
-                  {country.code}
-                </span>
-              </div>
-              <span className="text-xs text-[#78716C]">
+              <h3 className="text-base font-bold text-[#1C1917] tracking-tight leading-tight">
+                {country.country}
+              </h3>
+              <span className="text-[11px] text-[#78716C]">
                 {country.continent}
               </span>
             </div>
           </div>
 
-          {/* Strictness Score Badge */}
+          {/* Strictness Score Pill */}
           <div
-            className={`px-2.5 py-1 rounded-lg border font-mono text-xs font-bold ${getStrictnessStyle(
+            className={`px-2 py-0.5 rounded-lg border font-mono text-xs font-bold ${getStrictnessStyle(
               country.strictnessScore
             )}`}
           >
@@ -74,35 +101,41 @@ export const CountryCard: React.FC<CountryCardProps> = ({
           />
         </div>
 
-        {/* Concise Spec Rows (No inner fragmented boxes, no clipped text) */}
-        <div className="space-y-2.5 text-xs mb-4">
-          {/* Primary Law */}
-          <div className="flex items-start justify-between gap-2 pb-2 border-b border-[#F4EFE6]">
-            <span className="text-[#78716C] font-medium shrink-0">Primary Statute</span>
-            <span className="text-[#1C1917] font-medium text-right line-clamp-1" title={primaryStatute?.title}>
-              {primaryStatute?.title}
+        {/* Core Statute Title (Full, unclipped) */}
+        <div className="mb-3.5 pb-3 border-b border-[#F4EFE6]">
+          <span className="text-[10px] uppercase font-semibold tracking-wider text-[#78716C] block mb-1">
+            Governing Statute
+          </span>
+          <div className="text-xs font-semibold text-[#1C1917] leading-snug">
+            {primaryStatute?.title}
+          </div>
+        </div>
+
+        {/* 2-Column Clean Metadata Grid (No clipping, generous room) */}
+        <div className="grid grid-cols-2 gap-2.5 text-xs mb-3.5">
+          <div className="p-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]/70">
+            <span className="text-[#78716C] text-[10px] uppercase font-medium tracking-wider block mb-0.5">
+              Max Penalty
+            </span>
+            <span className="font-semibold text-[#C2410C] text-[11px] block">
+              {getConcisePenalty(primaryStatute?.maxPrison || "")}
             </span>
           </div>
 
-          {/* Maximum Incarceration */}
-          <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#F4EFE6]">
-            <span className="text-[#78716C] font-medium shrink-0">Max Sentence</span>
-            <span className="text-[#C2410C] font-semibold text-right truncate">
-              {primaryStatute?.maxPrison}
+          <div className="p-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]/70">
+            <span className="text-[#78716C] text-[10px] uppercase font-medium tracking-wider block mb-0.5">
+              Breach Notice
             </span>
-          </div>
-
-          {/* Breach Notice Window */}
-          <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#F4EFE6]">
-            <span className="text-[#78716C] font-medium shrink-0">Breach Window</span>
-            <span className="text-[#1C1917] font-semibold text-right">
+            <span className="font-semibold text-[#1C1917] text-[11px] block truncate" title={country.breachReportingHours}>
               {country.breachReportingHours}
             </span>
           </div>
+        </div>
 
-          {/* AI Legislation Status */}
-          <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#F4EFE6]">
-            <span className="text-[#78716C] font-medium shrink-0">AI Cyber Law</span>
+        {/* AI Law & Legislative Pipeline Status */}
+        <div className="space-y-1.5 text-xs mb-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[#78716C] text-[11px]">AI Legislation</span>
             <span
               className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded ${
                 country.aiCybercrime.status === "enacted"
@@ -120,9 +153,8 @@ export const CountryCard: React.FC<CountryCardProps> = ({
             </span>
           </div>
 
-          {/* Legislative Pipeline Status */}
-          <div className="flex items-center justify-between gap-2 pt-0.5">
-            <span className="text-[#78716C] font-medium shrink-0">Legislative Pipeline</span>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[#78716C] text-[11px]">Legislative Pipeline</span>
             {pendingCount > 0 ? (
               <span className="text-[11px] font-medium text-[#B45309] flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#B45309]" />
@@ -136,7 +168,7 @@ export const CountryCard: React.FC<CountryCardProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center gap-2 pt-3 border-t border-[#EAE5DB]">
+      <div className="flex items-center gap-2 pt-3 border-t border-[#EAE5DB] mt-2">
         <button
           onClick={() => onToggleCompare(country.id)}
           className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${

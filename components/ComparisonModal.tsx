@@ -10,9 +10,8 @@ import {
   Globe,
   AlertTriangle,
   Cpu,
-  Sparkles,
   Building2,
-  Terminal,
+  Sparkles,
 } from "lucide-react";
 
 interface ComparisonModalProps {
@@ -37,25 +36,25 @@ export const ComparisonModal: React.FC<ComparisonModalProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto font-sans">
-      <div className="relative w-full max-w-6xl bg-[#060a14] border border-slate-800 rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#1C1917]/50 backdrop-blur-sm overflow-y-auto font-sans">
+      <div className="relative w-full max-w-6xl bg-white border border-[#EAE5DB] rounded-2xl shadow-xl flex flex-col max-h-[92vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800/90 bg-[#090d18]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#EAE5DB] bg-[#FAF7F2]">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
-              <Scale className="w-4 h-4" />
+            <div className="p-2 rounded-lg bg-[#F4EFE6] text-[#7C4A27]">
+              <Scale className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-white tracking-tight">
-                  Versus Statutory & Strictness Matrix
+                <h2 className="text-base font-bold text-[#1C1917] tracking-tight">
+                  Side-by-Side Legal Strictness Comparison
                 </h2>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">
-                  {countries.length} JURISDICTIONS
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#F4EFE6] text-[#7C4A27] border border-[#EAE5DB] font-semibold">
+                  {countries.length} Jurisdictions
                 </span>
               </div>
-              <p className="text-[11px] font-mono text-slate-400">
-                Direct comparative analysis of statutory penalties, reporting mandates, and pending acts
+              <p className="text-xs text-[#78716C]">
+                Comparative analysis of statutory penalties, reporting mandates, and pending acts
               </p>
             </div>
           </div>
@@ -66,15 +65,15 @@ export const ComparisonModal: React.FC<ComparisonModalProps> = ({
                 onClick={() =>
                   onTriggerAICompare(countries.map((c) => c.country))
                 }
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-semibold bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-md shadow-cyan-500/20 active:scale-95 transition-all border border-cyan-400/30"
+                className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#7C4A27] hover:bg-[#63391C] text-white shadow-sm transition-all"
               >
-                <Terminal className="w-3.5 h-3.5 text-cyan-200" />
-                <span>AI COMPARATIVE BRIEF</span>
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>AI Jurisdictional Synthesis</span>
               </button>
             )}
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-1.5 rounded-lg text-[#78716C] hover:text-[#1C1917] hover:bg-[#F4EFE6] transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -82,56 +81,52 @@ export const ComparisonModal: React.FC<ComparisonModalProps> = ({
         </div>
 
         {/* Content Body */}
-        <div className="p-4 sm:p-6 overflow-y-auto space-y-6">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-6 bg-[#FBF9F5]">
           {/* Country Selection Header Bar */}
           {countries.length < 3 && (
-            <div className="flex flex-wrap items-center gap-2 p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-xs font-mono">
-              <span className="text-slate-400 text-[11px] uppercase tracking-wider">
-                Select Jurisdiction to Compare:
-              </span>
+            <div className="flex flex-wrap items-center gap-2 p-3 rounded-xl bg-white border border-[#EAE5DB] text-xs">
+              <span className="text-[#78716C] font-medium">Add to compare:</span>
               {availableToAdd.slice(0, 6).map((c) => (
                 <button
                   key={c.id}
                   onClick={() => onAddCountry(c.id)}
-                  className="px-2.5 py-1 rounded bg-slate-900 hover:bg-cyan-950 text-slate-300 hover:text-cyan-300 border border-slate-700/80 transition-colors flex items-center gap-1.5 text-xs"
+                  className="px-2.5 py-1 rounded-md bg-[#FAF7F2] hover:bg-[#F3EFE6] text-[#1C1917] border border-[#EAE5DB] transition-colors flex items-center gap-1.5"
                 >
                   <span>+</span>
-                  <span className="font-sans font-bold">{c.country}</span>
-                  <span className="text-[10px] text-slate-500">[{c.code}]</span>
+                  <span className="font-medium">{c.country}</span>
+                  <span className="text-[10px] text-[#78716C] font-mono">({c.code})</span>
                 </button>
               ))}
             </div>
           )}
 
           {countries.length === 0 ? (
-            <div className="py-16 text-center text-slate-500 font-mono">
-              <Scale className="w-10 h-10 mx-auto text-slate-700 mb-2" />
-              <p className="text-xs uppercase tracking-wider text-slate-400">
+            <div className="py-16 text-center text-[#78716C]">
+              <Scale className="w-10 h-10 mx-auto text-[#A8A29E] mb-2" />
+              <p className="text-sm font-medium text-[#1C1917]">
                 No jurisdictions currently staged for comparison.
               </p>
-              <p className="text-[11px] text-slate-500 mt-1">
+              <p className="text-xs text-[#78716C] mt-1">
                 Select 2 or 3 jurisdictions from the global matrix to evaluate side-by-side strictness.
               </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              {/* Responsive Grid Table */}
               <div
                 className="grid gap-4 min-w-[650px]"
                 style={{
                   gridTemplateColumns: `repeat(${countries.length}, minmax(0, 1fr))`,
                 }}
               >
-                {/* Column for each selected country */}
                 {countries.map((c) => (
                   <div
                     key={c.id}
-                    className="flex flex-col bg-[#080d1a] rounded-xl border border-slate-800 p-4 relative"
+                    className="flex flex-col bg-white rounded-xl border border-[#EAE5DB] p-5 relative shadow-sm"
                   >
                     {/* Remove button */}
                     <button
                       onClick={() => onRemoveCountry(c.id)}
-                      className="absolute top-3 right-3 p-1 rounded-md text-slate-500 hover:text-rose-400 hover:bg-slate-900"
+                      className="absolute top-3 right-3 p-1 rounded-md text-[#78716C] hover:text-[#C2410C] hover:bg-[#FAF7F2]"
                       title="Remove from comparison"
                     >
                       <X className="w-4 h-4" />
@@ -139,85 +134,85 @@ export const ComparisonModal: React.FC<ComparisonModalProps> = ({
 
                     {/* Country Header */}
                     <div className="flex items-center gap-3 mb-4">
-                      <span className="text-2xl filter drop-shadow">{c.flag}</span>
+                      <span className="text-2xl">{c.flag}</span>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <h3 className="font-bold text-white text-base tracking-tight">
+                          <h3 className="font-bold text-[#1C1917] text-base tracking-tight">
                             {c.country}
                           </h3>
-                          <span className="text-[10px] font-mono px-1 rounded bg-slate-800 text-slate-300">
+                          <span className="text-[10px] font-mono px-1 rounded bg-[#F4EFE6] text-[#78716C]">
                             {c.code}
                           </span>
                         </div>
-                        <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wide">
+                        <span className="text-xs text-[#78716C]">
                           {c.continent}
                         </span>
                       </div>
                     </div>
 
                     {/* Section 1: Strictness Index */}
-                    <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 mb-4 font-mono">
+                    <div className="p-3.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB] mb-4">
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[11px] text-slate-400 flex items-center gap-1 uppercase tracking-wider">
-                          <ShieldAlert className="w-3.5 h-3.5 text-cyan-400" />
+                        <span className="text-xs text-[#78716C] flex items-center gap-1 font-medium">
+                          <ShieldAlert className="w-3.5 h-3.5 text-[#7C4A27]" />
                           Strictness Score
                         </span>
-                        <span className="text-sm font-bold text-cyan-400">
+                        <span className="text-sm font-bold font-mono text-[#7C4A27]">
                           {c.strictnessScore.toFixed(1)} / 10
                         </span>
                       </div>
-                      <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden mb-1 border border-slate-800">
+                      <div className="w-full bg-[#EAE5DB] h-1.5 rounded-full overflow-hidden mb-1.5">
                         <div
-                          className="h-full bg-gradient-to-r from-cyan-500 via-amber-500 to-rose-500"
+                          className="h-full bg-[#7C4A27] rounded-full"
                           style={{ width: `${(c.strictnessScore / 10) * 100}%` }}
                         />
                       </div>
-                      <span className="text-[10px] uppercase font-bold text-slate-300">
-                        CLASSIFICATION: {c.strictnessRating}
+                      <span className="text-[11px] font-medium text-[#78716C]">
+                        Rating: {c.strictnessRating}
                       </span>
                     </div>
 
-                    {/* Section 2: Statutory Penalty Limits */}
-                    <div className="space-y-2.5 mb-4 text-xs font-mono">
-                      <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800/80">
-                        <span className="text-slate-400 text-[10px] uppercase tracking-wider block mb-0.5">
+                    {/* Section 2: Statutory Penalties */}
+                    <div className="space-y-2.5 mb-4 text-xs">
+                      <div className="p-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]">
+                        <span className="text-[#78716C] text-[10px] uppercase tracking-wider block mb-0.5 font-medium">
                           Maximum Incarceration
                         </span>
-                        <span className="font-sans font-semibold text-rose-300">
+                        <span className="font-semibold text-[#C2410C]">
                           {c.primaryActs[0]?.maxPrison || "Statutory maximums apply"}
                         </span>
                       </div>
 
-                      <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800/80">
-                        <span className="text-slate-400 text-[10px] uppercase tracking-wider block mb-0.5">
-                          Financial Penalties & Turnover Fines
+                      <div className="p-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]">
+                        <span className="text-[#78716C] text-[10px] uppercase tracking-wider block mb-0.5 font-medium">
+                          Financial Penalties & Fines
                         </span>
-                        <span className="font-sans font-semibold text-amber-300">
+                        <span className="font-semibold text-[#B45309]">
                           {c.primaryActs[0]?.maxFine || "Civil damages"}
                         </span>
                       </div>
 
-                      <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800/80">
-                        <span className="text-slate-400 text-[10px] uppercase tracking-wider block mb-0.5">
-                          Mandatory Breach Window
+                      <div className="p-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]">
+                        <span className="text-[#78716C] text-[10px] uppercase tracking-wider block mb-0.5 font-medium">
+                          Mandatory Breach Notice
                         </span>
-                        <div className="flex items-center gap-1.5 font-semibold text-cyan-300">
-                          <Clock className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                        <div className="flex items-center gap-1.5 font-semibold text-[#1C1917]">
+                          <Clock className="w-3.5 h-3.5 text-[#7C4A27] shrink-0" />
                           <span>{c.breachReportingHours}</span>
                         </div>
                       </div>
 
-                      <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800/80">
-                        <span className="text-slate-400 text-[10px] uppercase tracking-wider block mb-0.5">
-                          Extraterritorial Jurisdiction
+                      <div className="p-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]">
+                        <span className="text-[#78716C] text-[10px] uppercase tracking-wider block mb-0.5 font-medium">
+                          Extraterritorial Reach
                         </span>
                         <div className="flex items-center gap-1.5 font-semibold">
-                          <Globe className="w-3.5 h-3.5 text-blue-400" />
+                          <Globe className="w-3.5 h-3.5 text-[#7C4A27]" />
                           <span
                             className={
                               c.extraterritorialReach
-                                ? "text-emerald-400"
-                                : "text-slate-400"
+                                ? "text-[#2D5A43]"
+                                : "text-[#78716C]"
                             }
                           >
                             {c.extraterritorialReach
@@ -227,42 +222,42 @@ export const ComparisonModal: React.FC<ComparisonModalProps> = ({
                         </div>
                       </div>
 
-                      <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800/80">
-                        <span className="text-slate-400 text-[10px] uppercase tracking-wider block mb-0.5">
+                      <div className="p-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]">
+                        <span className="text-[#78716C] text-[10px] uppercase tracking-wider block mb-0.5 font-medium">
                           Lead Enforcement Authority
                         </span>
-                        <div className="flex items-center gap-1.5 text-slate-300 font-sans font-medium">
-                          <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <div className="flex items-center gap-1.5 text-[#1C1917] font-medium">
+                          <Building2 className="w-3.5 h-3.5 text-[#78716C] shrink-0" />
                           <span className="line-clamp-1">{c.leadEnforcementAgency}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Section 3: AI Cybercrime Coverage */}
-                    <div className="p-3 rounded-lg bg-purple-950/20 border border-purple-800/40 mb-4 text-xs">
-                      <div className="flex items-center justify-between mb-1.5 font-mono">
-                        <span className="font-bold text-purple-300 flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
-                          <Cpu className="w-3.5 h-3.5" />
+                    <div className="p-3 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB] mb-4 text-xs">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="font-bold text-[#1C1917] flex items-center gap-1.5 text-xs">
+                          <Cpu className="w-3.5 h-3.5 text-[#7C4A27]" />
                           AI Law Status
                         </span>
                         <span
-                          className={`text-[9px] font-bold px-1.5 py-0.2 rounded uppercase ${
+                          className={`text-[10px] font-semibold px-1.5 py-0.2 rounded uppercase ${
                             c.aiCybercrime.status === "enacted"
-                              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                              : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                              ? "bg-[#E8F0EC] text-[#2D5A43] border border-[#C2D6CC]"
+                              : "bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A]"
                           }`}
                         >
                           {c.aiCybercrime.status}
                         </span>
                       </div>
-                      <p className="text-slate-300 mb-2 leading-relaxed text-[11px]">
+                      <p className="text-[#78716C] mb-2 leading-relaxed text-xs">
                         {c.aiCybercrime.summary}
                       </p>
                       <div className="flex flex-wrap gap-1">
                         {c.aiCybercrime.coveredOffenses.map((offense, idx) => (
                           <span
                             key={idx}
-                            className="text-[10px] font-mono bg-purple-900/40 text-purple-200 px-1.5 py-0.5 rounded border border-purple-800/60"
+                            className="text-[10px] bg-white text-[#78716C] px-1.5 py-0.5 rounded border border-[#EAE5DB]"
                           >
                             {offense}
                           </span>
@@ -270,10 +265,10 @@ export const ComparisonModal: React.FC<ComparisonModalProps> = ({
                       </div>
                     </div>
 
-                    {/* Section 4: Available but NOT Notified / Draft Bills */}
-                    <div className="p-3 rounded-lg bg-amber-950/20 border border-amber-800/40 text-xs">
-                      <div className="flex items-center gap-1.5 font-mono font-bold text-amber-300 mb-1.5 text-[11px] uppercase tracking-wider">
-                        <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                    {/* Section 4: Pending / Draft Acts */}
+                    <div className="p-3 rounded-lg bg-[#FEF3C7]/40 border border-[#FDE68A] text-xs">
+                      <div className="flex items-center gap-1.5 font-bold text-[#B45309] mb-1.5 text-xs">
+                        <AlertTriangle className="w-3.5 h-3.5 text-[#B45309]" />
                         <span>Unnotified & Pending Acts</span>
                       </div>
                       {c.pendingOrDraftActs.length > 0 ? (
@@ -281,24 +276,24 @@ export const ComparisonModal: React.FC<ComparisonModalProps> = ({
                           {c.pendingOrDraftActs.map((act) => (
                             <div
                               key={act.id}
-                              className="p-2 rounded bg-slate-950 border border-slate-800"
+                              className="p-2 rounded bg-white border border-[#EAE5DB]"
                             >
                               <div className="flex items-center justify-between mb-1">
-                                <span className="font-semibold text-slate-200 text-[11px]">
+                                <span className="font-semibold text-[#1C1917] text-xs">
                                   {act.title}
                                 </span>
-                                <span className="text-[9px] font-mono uppercase px-1 rounded bg-amber-500/20 text-amber-300 font-bold">
+                                <span className="text-[9px] font-mono uppercase px-1 rounded bg-[#FEF3C7] text-[#B45309] font-bold">
                                   {act.status.replace("_", " ")}
                                 </span>
                               </div>
-                              <p className="text-[11px] text-slate-400 leading-relaxed">
+                              <p className="text-[11px] text-[#78716C] leading-relaxed">
                                 {act.pendingNoticeDetails || act.summary}
                               </p>
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-slate-500 italic text-[11px] font-mono">
+                        <p className="text-[#78716C] italic text-xs">
                           No pending gazette notifications recorded.
                         </p>
                       )}

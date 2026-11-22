@@ -10,7 +10,6 @@ import {
   Bot,
   User,
   Loader2,
-  Terminal,
 } from "lucide-react";
 
 interface Message {
@@ -37,7 +36,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
     {
       role: "assistant",
       content:
-        "JurisLink AI Legal Intelligence Engine initialized. Grounded by Groq Llama-3.3-70B and real-time Tavily Web Search. Ready to query comparative statutory penalties, draft legislation, and emerging AI criminal jurisprudence.",
+        "JurisLink Legal Research Assistant initialized. Grounded by Groq Llama-3.3-70B and real-time Tavily Web Search. Query comparative statutory penalties, draft legislation, or emerging AI cybercrime jurisprudence.",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
@@ -46,12 +45,10 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom of chat
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
-  // Handle incoming initial prompt from parent components
   useEffect(() => {
     if (initialPrompt && isOpen) {
       handleSend(initialPrompt);
@@ -121,22 +118,22 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/70 backdrop-blur-sm flex justify-end font-sans">
-      <div className="w-full max-w-2xl bg-[#060a14] border-l border-slate-800 h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-300">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-[#1C1917]/50 backdrop-blur-sm flex justify-end font-sans">
+      <div className="w-full max-w-2xl bg-white border-l border-[#EAE5DB] h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-200">
         {/* Drawer Header */}
-        <div className="p-4 border-b border-slate-800 bg-[#090d18] flex items-center justify-between">
+        <div className="p-4 border-b border-[#EAE5DB] bg-[#FAF7F2] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-cyan-600 to-indigo-600 flex items-center justify-center text-white border border-cyan-400/40 shadow-lg shadow-cyan-500/20">
-              <Terminal className="w-5 h-5 text-cyan-200" />
+            <div className="w-8 h-8 rounded-lg bg-[#7C4A27] text-white flex items-center justify-center font-serif font-bold text-sm shadow-sm">
+              AI
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white flex items-center gap-2 font-mono tracking-tight">
-                AI LEGAL INTEL ASSISTANT
-                <span className="text-[9px] font-mono font-normal px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">
-                  GROQ LLAMA-3.3 + TAVILY
+              <h2 className="text-sm font-bold text-[#1C1917] flex items-center gap-2">
+                Legal Research Assistant
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#F4EFE6] text-[#7C4A27] border border-[#EAE5DB]">
+                  Groq + Tavily
                 </span>
               </h2>
-              <p className="text-[11px] text-slate-400 font-mono">
+              <p className="text-xs text-[#78716C]">
                 Real-time comparative analysis & web-grounded legal citations
               </p>
             </div>
@@ -144,33 +141,33 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-[#78716C] hover:text-[#1C1917] hover:bg-[#F4EFE6] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Live Search Toggle Bar */}
-        <div className="px-4 py-2.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between text-xs font-mono">
+        <div className="px-4 py-2.5 bg-[#FAF7F2] border-b border-[#EAE5DB] flex items-center justify-between text-xs">
           <label className="flex items-center gap-2 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={includeWebSearch}
               onChange={(e) => setIncludeWebSearch(e.target.checked)}
-              className="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0"
+              className="rounded border-[#D6CEBF] text-[#7C4A27] focus:ring-0"
             />
-            <Globe className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="text-slate-300 text-xs font-medium">
-              LIVE WEB GROUNDING (TAVILY API)
+            <Globe className="w-3.5 h-3.5 text-[#7C4A27]" />
+            <span className="text-[#1C1917] font-medium text-xs">
+              Live Web Grounding (Tavily API)
             </span>
           </label>
-          <span className="text-[10px] text-slate-500 hidden sm:inline uppercase">
-            Active Legislative Gazette Crawl
+          <span className="text-[11px] text-[#78716C] hidden sm:inline">
+            Searches recent legislative gazettes
           </span>
         </div>
 
-        {/* Chat Messages Container */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* Chat Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#FBF9F5]">
           {messages.map((msg, index) => (
             <div
               key={index}
@@ -179,24 +176,24 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
               }`}
             >
               {msg.role === "assistant" && (
-                <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center shrink-0 text-cyan-400 mt-1">
-                  <Terminal className="w-4 h-4" />
+                <div className="w-7 h-7 rounded-lg bg-white border border-[#EAE5DB] flex items-center justify-center shrink-0 text-[#7C4A27] mt-1 shadow-sm">
+                  <Bot className="w-3.5 h-3.5" />
                 </div>
               )}
 
               <div
                 className={`max-w-[85%] rounded-2xl p-4 text-xs leading-relaxed ${
                   msg.role === "user"
-                    ? "bg-cyan-600 text-slate-950 font-medium rounded-tr-none shadow-md font-sans"
-                    : "bg-[#090d19] border border-slate-800 text-slate-200 rounded-tl-none font-sans"
+                    ? "bg-[#7C4A27] text-white rounded-tr-none shadow-sm"
+                    : "bg-white border border-[#EAE5DB] text-[#1C1917] rounded-tl-none shadow-sm"
                 }`}
               >
                 <div className="whitespace-pre-wrap">{msg.content}</div>
 
                 {/* Sources / Citations */}
                 {msg.sources && msg.sources.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-slate-800">
-                    <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+                  <div className="mt-3 pt-3 border-t border-[#EAE5DB]">
+                    <span className="text-[10px] font-semibold text-[#78716C] uppercase tracking-wider block mb-1.5">
                       Grounding Citations:
                     </span>
                     <div className="space-y-1">
@@ -206,7 +203,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
                           href={s.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center gap-1.5 text-[11px] text-cyan-400 hover:text-cyan-300 hover:underline truncate font-mono"
+                          className="flex items-center gap-1.5 text-[11px] text-[#7C4A27] hover:underline truncate"
                         >
                           <ExternalLink className="w-3 h-3 shrink-0" />
                           <span className="truncate">{s.title || s.url}</span>
@@ -218,7 +215,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
 
                 <div
                   className={`text-[9px] mt-2 font-mono ${
-                    msg.role === "user" ? "text-slate-900/80" : "text-slate-500"
+                    msg.role === "user" ? "text-white/70" : "text-[#78716C]"
                   }`}
                 >
                   {msg.timestamp}
@@ -226,20 +223,18 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
               </div>
 
               {msg.role === "user" && (
-                <div className="w-8 h-8 rounded-lg bg-cyan-700 flex items-center justify-center shrink-0 text-white mt-1">
-                  <User className="w-4 h-4" />
+                <div className="w-7 h-7 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB] flex items-center justify-center shrink-0 text-[#1C1917] mt-1">
+                  <User className="w-3.5 h-3.5" />
                 </div>
               )}
             </div>
           ))}
 
           {isLoading && (
-            <div className="flex gap-3 items-center text-slate-400 text-xs font-mono">
-              <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center shrink-0 text-cyan-400">
-                <Loader2 className="w-4 h-4 animate-spin" />
-              </div>
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 italic">
-                Crawling web telemetry and analyzing comparative statutes with Groq...
+            <div className="flex gap-2.5 items-center text-[#78716C] text-xs">
+              <Loader2 className="w-4 h-4 animate-spin text-[#7C4A27]" />
+              <div className="p-3 rounded-xl bg-white border border-[#EAE5DB] shadow-sm">
+                Searching web and analyzing comparative statutes with Groq...
               </div>
             </div>
           )}
@@ -248,16 +243,16 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
         </div>
 
         {/* Quick Query Pills */}
-        <div className="px-4 py-2 border-t border-slate-800/80 bg-slate-950 overflow-x-auto whitespace-nowrap">
-          <div className="flex items-center gap-2 font-mono">
-            <span className="text-[9px] uppercase font-bold text-slate-500 shrink-0">
-              QUICK QUERIES:
+        <div className="px-4 py-2 border-t border-[#EAE5DB] bg-[#FAF7F2] overflow-x-auto whitespace-nowrap">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] uppercase font-semibold text-[#78716C] shrink-0">
+              Suggestions:
             </span>
             {presetQueries.map((preset, idx) => (
               <button
                 key={idx}
                 onClick={() => handleSend(preset)}
-                className="px-2.5 py-1 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[10px] border border-slate-700/80 shrink-0 transition-colors"
+                className="px-2.5 py-1 rounded-full bg-white hover:bg-[#F3EFE6] text-[#1C1917] text-[11px] border border-[#EAE5DB] shrink-0 transition-colors"
               >
                 {preset}
               </button>
@@ -266,7 +261,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
         </div>
 
         {/* Input Bar */}
-        <div className="p-4 border-t border-slate-800 bg-[#070b14]">
+        <div className="p-4 border-t border-[#EAE5DB] bg-white">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -278,13 +273,13 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
               type="text"
               value={inputQuery}
               onChange={(e) => setInputQuery(e.target.value)}
-              placeholder="Query statutory strictness, cross-border penalties, or pending acts..."
-              className="flex-1 bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
+              placeholder="Query statutory strictness, breach rules, or pending acts..."
+              className="flex-1 bg-[#FAF7F2] border border-[#EAE5DB] rounded-xl px-4 py-2.5 text-xs text-[#1C1917] placeholder-[#78716C] focus:outline-none focus:border-[#7C4A27] transition-colors"
             />
             <button
               type="submit"
               disabled={isLoading || !inputQuery.trim()}
-              className="p-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:from-cyan-500 hover:to-blue-500 transition-all shadow-md shadow-cyan-500/20 border border-cyan-400/30"
+              className="p-2.5 rounded-xl bg-[#7C4A27] text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#63391C] transition-all shadow-sm"
             >
               <Send className="w-4 h-4" />
             </button>

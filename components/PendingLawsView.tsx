@@ -2,14 +2,7 @@
 
 import React, { useState } from "react";
 import { CountryCyberLaw } from "@/data/countries";
-import {
-  Clock,
-  AlertTriangle,
-  FileText,
-  Sparkles,
-  Filter,
-  Terminal,
-} from "lucide-react";
+import { Clock, AlertTriangle, Filter, Sparkles } from "lucide-react";
 
 interface PendingLawsViewProps {
   countries: CountryCyberLaw[];
@@ -22,7 +15,6 @@ export const PendingLawsView: React.FC<PendingLawsViewProps> = ({
 }) => {
   const [filterType, setFilterType] = useState<"all" | "pending_notification" | "draft">("all");
 
-  // Flatten pending or draft acts with country metadata
   const pendingItems = countries.flatMap((c) =>
     c.pendingOrDraftActs.map((act) => ({
       ...act,
@@ -41,59 +33,58 @@ export const PendingLawsView: React.FC<PendingLawsViewProps> = ({
   return (
     <div className="space-y-6 font-sans">
       {/* Banner / Explainer */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-amber-950/30 via-[#070b14] to-[#070b14] border border-amber-500/30">
+      <div className="p-6 rounded-2xl bg-white border border-[#EAE5DB] shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px] font-mono font-bold uppercase tracking-wider">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A] text-[10px] font-semibold uppercase tracking-wider">
               <Clock className="w-3.5 h-3.5" />
-              <span>LEGISLATIVE TRANSITION TELEMETRY</span>
+              <span>Legislative Transition Tracker</span>
             </div>
-            <h2 className="text-2xl font-bold text-white tracking-tight">
+            <h2 className="text-xl font-bold text-[#1C1917] tracking-tight">
               Acts Available but NOT Notified / Draft Bills
             </h2>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed">
-              In international cyber law, a critical gap exists between when a statute is passed by parliament and when it is formally <strong className="text-amber-300">notified in the official gazette</strong> with operative secondary rules. Monitor which jurisdictions have passed legislation, identify regulatory bottlenecks, and track upcoming enforcement dates.
+            <p className="text-xs text-[#78716C] max-w-3xl leading-relaxed">
+              In international cyber law, a critical gap often occurs between when a statute is passed by parliament and when it is formally <strong className="text-[#1C1917]">notified in the official gazette</strong> with secondary implementation rules. Track which nations have enacted bills awaiting notification, regulatory bottlenecks, and upcoming compliance dates.
             </p>
           </div>
 
-          {/* Quick Stats Pill */}
-          <div className="flex sm:flex-col items-center sm:items-end justify-between p-3.5 rounded-xl bg-slate-950 border border-slate-800 shrink-0 font-mono">
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider">Tracked Pipeline</span>
-            <span className="text-xl font-bold text-amber-400">
-              {pendingItems.length} STATUTES
+          <div className="flex sm:flex-col items-center sm:items-end justify-between p-3 rounded-xl bg-[#FAF7F2] border border-[#EAE5DB] shrink-0 font-mono">
+            <span className="text-[10px] text-[#78716C] uppercase tracking-wider">Tracked Pipeline</span>
+            <span className="text-lg font-bold text-[#B45309]">
+              {pendingItems.length} Statutes
             </span>
           </div>
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex items-center gap-2 mt-6 pt-4 border-t border-slate-800/80 font-mono text-xs">
-          <Filter className="w-3.5 h-3.5 text-slate-400" />
+        {/* Filter Chips */}
+        <div className="flex items-center gap-2 mt-5 pt-4 border-t border-[#EAE5DB] text-xs">
+          <Filter className="w-3.5 h-3.5 text-[#78716C]" />
           <button
             onClick={() => setFilterType("all")}
-            className={`px-3 py-1 rounded-lg text-xs transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               filterType === "all"
-                ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
-                : "bg-slate-950 text-slate-400 hover:text-white border border-slate-800"
+                ? "bg-[#7C4A27] text-white shadow-sm"
+                : "bg-[#FAF7F2] text-[#78716C] hover:text-[#1C1917] border border-[#EAE5DB]"
             }`}
           >
-            All Acts [{pendingItems.length}]
+            All Acts ({pendingItems.length})
           </button>
           <button
             onClick={() => setFilterType("pending_notification")}
-            className={`px-3 py-1 rounded-lg text-xs transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               filterType === "pending_notification"
-                ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
-                : "bg-slate-950 text-slate-400 hover:text-white border border-slate-800"
+                ? "bg-[#7C4A27] text-white shadow-sm"
+                : "bg-[#FAF7F2] text-[#78716C] hover:text-[#1C1917] border border-[#EAE5DB]"
             }`}
           >
-            Awaiting Gazette Rules
+            Awaiting Gazette Notification
           </button>
           <button
             onClick={() => setFilterType("draft")}
-            className={`px-3 py-1 rounded-lg text-xs transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               filterType === "draft"
-                ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
-                : "bg-slate-950 text-slate-400 hover:text-white border border-slate-800"
+                ? "bg-[#7C4A27] text-white shadow-sm"
+                : "bg-[#FAF7F2] text-[#78716C] hover:text-[#1C1917] border border-[#EAE5DB]"
             }`}
           >
             Draft Bills & Consultations
@@ -106,88 +97,88 @@ export const PendingLawsView: React.FC<PendingLawsViewProps> = ({
         {filteredItems.map((item) => (
           <div
             key={item.id}
-            className="p-5 rounded-xl bg-[#080d1a] border border-slate-800 hover:border-amber-500/40 transition-all flex flex-col justify-between"
+            className="editorial-card p-5 flex flex-col justify-between"
           >
             <div>
               {/* Header */}
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex items-center gap-2.5">
-                  <span className="text-2xl filter drop-shadow">{item.flag}</span>
+                  <span className="text-2xl">{item.flag}</span>
                   <div>
-                    <h3 className="font-bold text-white text-sm sm:text-base leading-snug">
+                    <h3 className="font-bold text-[#1C1917] text-sm leading-snug">
                       {item.title}
                     </h3>
-                    <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wide">
-                      {item.countryName} [{item.code}]
+                    <span className="text-xs text-[#78716C]">
+                      {item.countryName} ({item.code})
                     </span>
                   </div>
                 </div>
 
                 <span
-                  className={`text-[9px] font-mono uppercase font-bold tracking-wider px-2 py-1 rounded shrink-0 ${
+                  className={`text-[9px] uppercase font-semibold tracking-wider px-2 py-0.5 rounded shrink-0 border ${
                     item.status === "pending_notification"
-                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
-                      : "bg-blue-500/20 text-blue-300 border border-blue-500/40"
+                      ? "bg-[#FEF3C7] text-[#B45309] border-[#FDE68A]"
+                      : "bg-[#F4EFE6] text-[#78716C] border-[#EAE5DB]"
                   }`}
                 >
                   {item.status === "pending_notification"
-                    ? "Pending Gazette Notice"
+                    ? "Pending Gazette"
                     : "Draft Bill"}
                 </span>
               </div>
 
-              {/* Status Explanation / Blocker Details */}
-              <div className="p-3 rounded-lg bg-slate-950 border border-slate-800/90 mb-3 text-xs font-mono">
-                <div className="flex items-center gap-1.5 font-bold text-amber-400 mb-1 text-[11px] uppercase tracking-wider">
+              {/* Status Details */}
+              <div className="p-3 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB] mb-3 text-xs">
+                <div className="flex items-center gap-1.5 font-semibold text-[#B45309] mb-1">
                   <AlertTriangle className="w-3.5 h-3.5" />
                   <span>Enforcement & Notification Obstacle</span>
                 </div>
-                <p className="text-slate-300 font-sans text-xs leading-relaxed">
+                <p className="text-[#1C1917] leading-relaxed">
                   {item.pendingNoticeDetails || item.summary}
                 </p>
               </div>
 
-              {/* Key Sections & Provisions */}
-              <div className="space-y-1.5 mb-4 text-xs">
-                <span className="font-mono text-[10px] uppercase tracking-wider text-slate-400 block font-semibold">
+              {/* Key Provisions */}
+              <div className="space-y-1 mb-4 text-xs">
+                <span className="text-[10px] uppercase tracking-wider text-[#78716C] block font-semibold">
                   Key Proposed Provisions:
                 </span>
                 {item.keySections.map((sec, idx) => (
-                  <div key={idx} className="flex items-start gap-2 text-slate-300 text-xs">
-                    <span className="text-cyan-400 font-mono text-[11px] mt-0.5">•</span>
+                  <div key={idx} className="flex items-start gap-1.5 text-[#78716C]">
+                    <span className="text-[#7C4A27] font-bold">•</span>
                     <span>{sec}</span>
                   </div>
                 ))}
               </div>
 
               {/* Proposed Penalties */}
-              <div className="grid grid-cols-2 gap-2 text-xs mb-4 font-mono">
-                <div className="p-2 rounded bg-slate-950 border border-slate-800">
-                  <span className="text-slate-400 text-[9px] uppercase tracking-wider block">
+              <div className="grid grid-cols-2 gap-2 text-xs mb-4">
+                <div className="p-2 rounded bg-[#FAF7F2] border border-[#EAE5DB]">
+                  <span className="text-[#78716C] text-[9px] uppercase tracking-wider block">
                     Proposed Incarceration
                   </span>
-                  <span className="text-rose-300 font-sans font-medium text-xs">{item.maxPrison}</span>
+                  <span className="text-[#C2410C] font-medium">{item.maxPrison}</span>
                 </div>
-                <div className="p-2 rounded bg-slate-950 border border-slate-800">
-                  <span className="text-slate-400 text-[9px] uppercase tracking-wider block">
+                <div className="p-2 rounded bg-[#FAF7F2] border border-[#EAE5DB]">
+                  <span className="text-[#78716C] text-[9px] uppercase tracking-wider block">
                     Proposed Fines
                   </span>
-                  <span className="text-amber-300 font-sans font-medium text-xs">{item.maxFine}</span>
+                  <span className="text-[#B45309] font-medium">{item.maxFine}</span>
                 </div>
               </div>
             </div>
 
-            {/* Quick Ask AI button */}
+            {/* Ask AI button */}
             <button
               onClick={() =>
                 onTriggerAIPrompt(
                   `What is the current enforcement status and notification timeline of ${item.title} in ${item.countryName}?`
                 )
               }
-              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-mono font-semibold bg-slate-900 hover:bg-slate-800 text-cyan-300 hover:text-cyan-200 border border-slate-700/80 transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold bg-[#FAF7F2] hover:bg-[#F3EFE6] text-[#7C4A27] border border-[#EAE5DB] transition-colors"
             >
-              <Terminal className="w-3.5 h-3.5 text-cyan-400" />
-              <span>QUERY STATUTE TIMELINE VIA AI</span>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Query Statute Status via AI</span>
             </button>
           </div>
         ))}

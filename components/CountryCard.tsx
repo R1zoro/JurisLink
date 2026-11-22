@@ -2,7 +2,7 @@
 
 import React from "react";
 import { CountryCyberLaw } from "@/data/countries";
-import { Clock, Cpu, Check, Plus, ArrowUpRight, AlertTriangle } from "lucide-react";
+import { Check, Plus, ArrowUpRight } from "lucide-react";
 
 interface CountryCardProps {
   country: CountryCyberLaw;
@@ -29,10 +29,13 @@ export const CountryCard: React.FC<CountryCardProps> = ({
     return "bg-[#7C4A27]";
   };
 
+  const primaryStatute = country.primaryActs[0];
+  const pendingCount = country.pendingOrDraftActs?.length || 0;
+
   return (
-    <div className="editorial-card p-5 flex flex-col justify-between font-sans">
+    <div className="editorial-card p-5 flex flex-col justify-between font-sans bg-white border border-[#EAE5DB] rounded-xl hover:border-[#D6CEBF] transition-all shadow-sm">
       <div>
-        {/* Top Header: Flag, Name, Region & Strictness Score */}
+        {/* Header: Flag, Name, Region & Strictness Score */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-3">
             <span className="text-2xl select-none" role="img" aria-label={country.country}>
@@ -55,7 +58,7 @@ export const CountryCard: React.FC<CountryCardProps> = ({
 
           {/* Strictness Score Badge */}
           <div
-            className={`px-2.5 py-1 rounded-lg border font-mono text-right text-xs font-bold ${getStrictnessStyle(
+            className={`px-2.5 py-1 rounded-lg border font-mono text-xs font-bold ${getStrictnessStyle(
               country.strictnessScore
             )}`}
           >
@@ -71,64 +74,64 @@ export const CountryCard: React.FC<CountryCardProps> = ({
           />
         </div>
 
-        {/* Key Metrics */}
-        <div className="grid grid-cols-2 gap-2 text-xs mb-3.5">
-          <div className="p-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]">
-            <span className="text-[#78716C] text-[10px] uppercase tracking-wider block mb-0.5 font-medium">
-              Breach Mandate
+        {/* Concise Spec Rows (No inner fragmented boxes, no clipped text) */}
+        <div className="space-y-2.5 text-xs mb-4">
+          {/* Primary Law */}
+          <div className="flex items-start justify-between gap-2 pb-2 border-b border-[#F4EFE6]">
+            <span className="text-[#78716C] font-medium shrink-0">Primary Statute</span>
+            <span className="text-[#1C1917] font-medium text-right line-clamp-1" title={primaryStatute?.title}>
+              {primaryStatute?.title}
             </span>
-            <div className="flex items-center gap-1.5 text-[#1C1917] font-medium truncate">
-              <Clock className="w-3.5 h-3.5 text-[#7C4A27] shrink-0" />
-              <span className="truncate">{country.breachReportingHours}</span>
-            </div>
           </div>
 
-          <div className="p-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]">
-            <span className="text-[#78716C] text-[10px] uppercase tracking-wider block mb-0.5 font-medium">
-              AI Cyber Law
+          {/* Maximum Incarceration */}
+          <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#F4EFE6]">
+            <span className="text-[#78716C] font-medium shrink-0">Max Sentence</span>
+            <span className="text-[#C2410C] font-semibold text-right truncate">
+              {primaryStatute?.maxPrison}
             </span>
-            <div className="flex items-center gap-1.5 font-medium">
-              <Cpu className="w-3.5 h-3.5 text-[#7C4A27] shrink-0" />
-              <span
-                className={`text-[10px] font-semibold uppercase px-1.5 py-0.2 rounded ${
-                  country.aiCybercrime.status === "enacted"
-                    ? "bg-[#E8F0EC] text-[#2D5A43] border border-[#C2D6CC]"
-                    : country.aiCybercrime.status === "pending"
-                    ? "bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A]"
-                    : "bg-[#F4EFE6] text-[#78716C]"
-                }`}
-              >
-                {country.aiCybercrime.status === "enacted"
-                  ? "Enacted"
+          </div>
+
+          {/* Breach Notice Window */}
+          <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#F4EFE6]">
+            <span className="text-[#78716C] font-medium shrink-0">Breach Window</span>
+            <span className="text-[#1C1917] font-semibold text-right">
+              {country.breachReportingHours}
+            </span>
+          </div>
+
+          {/* AI Legislation Status */}
+          <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#F4EFE6]">
+            <span className="text-[#78716C] font-medium shrink-0">AI Cyber Law</span>
+            <span
+              className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded ${
+                country.aiCybercrime.status === "enacted"
+                  ? "bg-[#E8F0EC] text-[#2D5A43] border border-[#C2D6CC]"
                   : country.aiCybercrime.status === "pending"
-                  ? "Pending Bill"
-                  : "General"}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Pending Legislation Notice */}
-        {country.pendingOrDraftActs && country.pendingOrDraftActs.length > 0 && (
-          <div className="mb-3.5 px-3 py-2 rounded-lg bg-[#FEF3C7]/60 border border-[#FDE68A] text-[#B45309] text-xs flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 truncate">
-              <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-[#B45309]" />
-              <span className="truncate font-medium text-[11px]">
-                {country.pendingOrDraftActs[0].title}
-              </span>
-            </div>
-            <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-[#FEF3C7] text-[#B45309] shrink-0 border border-[#FDE68A]">
-              {country.pendingOrDraftActs[0].status === "pending_notification"
-                ? "Unnotified"
-                : "Draft"}
+                  ? "bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A]"
+                  : "bg-[#F4EFE6] text-[#78716C]"
+              }`}
+            >
+              {country.aiCybercrime.status === "enacted"
+                ? "Enacted"
+                : country.aiCybercrime.status === "pending"
+                ? "Pending Bill"
+                : "General Statutes"}
             </span>
           </div>
-        )}
 
-        {/* Primary Statute Preview */}
-        <div className="text-xs text-[#78716C] mb-4 line-clamp-2 leading-relaxed">
-          <strong className="text-[#1C1917] font-medium">Statute: </strong>
-          {country.primaryActs[0]?.title}
+          {/* Legislative Pipeline Status */}
+          <div className="flex items-center justify-between gap-2 pt-0.5">
+            <span className="text-[#78716C] font-medium shrink-0">Legislative Pipeline</span>
+            {pendingCount > 0 ? (
+              <span className="text-[11px] font-medium text-[#B45309] flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#B45309]" />
+                <span>{pendingCount} {pendingCount === 1 ? "Bill" : "Bills"} Awaiting Gazette</span>
+              </span>
+            ) : (
+              <span className="text-[11px] text-[#78716C]">Fully Notified</span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -157,7 +160,7 @@ export const CountryCard: React.FC<CountryCardProps> = ({
 
         <button
           onClick={() => onSelectCountry(country)}
-          className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-medium bg-[#FAF7F2] hover:bg-[#F3EFE6] text-[#78716C] hover:text-[#1C1917] border border-[#EAE5DB] transition-colors"
+          className="flex items-center justify-center gap-1 px-3.5 py-2 rounded-lg text-xs font-medium bg-[#FAF7F2] hover:bg-[#F3EFE6] text-[#78716C] hover:text-[#1C1917] border border-[#EAE5DB] transition-colors"
           title="Inspect statutory dossier"
         >
           <span>Dossier</span>

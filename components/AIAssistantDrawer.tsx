@@ -10,8 +10,7 @@ import {
   Bot,
   User,
   Loader2,
-  AlertCircle,
-  HelpCircle,
+  Terminal,
 } from "lucide-react";
 
 interface Message {
@@ -38,7 +37,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
     {
       role: "assistant",
       content:
-        "Welcome to JurisLink AI Legal Intelligence. I synthesize international cybercrime legislation, penalty comparisons, pending bills awaiting notification, and emerging AI regulations using Groq Llama-3.3-70B and real-time Tavily Web Search. How can I assist your comparative analysis today?",
+        "JurisLink AI Legal Intelligence Engine initialized. Grounded by Groq Llama-3.3-70B and real-time Tavily Web Search. Ready to query comparative statutory penalties, draft legislation, and emerging AI criminal jurisprudence.",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
@@ -122,23 +121,23 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex justify-end">
-      <div className="w-full max-w-2xl bg-slate-900 border-l border-slate-800 h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-300">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-black/70 backdrop-blur-sm flex justify-end font-sans">
+      <div className="w-full max-w-2xl bg-[#060a14] border-l border-slate-800 h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-300">
         {/* Drawer Header */}
-        <div className="p-4 border-b border-slate-800 bg-slate-950/80 flex items-center justify-between">
+        <div className="p-4 border-b border-slate-800 bg-[#090d18] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20">
-              <Sparkles className="w-5 h-5 text-cyan-200" />
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-cyan-600 to-indigo-600 flex items-center justify-center text-white border border-cyan-400/40 shadow-lg shadow-cyan-500/20">
+              <Terminal className="w-5 h-5 text-cyan-200" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                JurisLink Intelligence Assistant
-                <span className="text-[10px] font-mono font-normal px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">
-                  Groq Llama-3.3 + Tavily Search
+              <h2 className="text-sm font-bold text-white flex items-center gap-2 font-mono tracking-tight">
+                AI LEGAL INTEL ASSISTANT
+                <span className="text-[9px] font-mono font-normal px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">
+                  GROQ LLAMA-3.3 + TAVILY
                 </span>
               </h2>
-              <p className="text-xs text-slate-400">
-                Live comparative analysis & web-grounded legal citations
+              <p className="text-[11px] text-slate-400 font-mono">
+                Real-time comparative analysis & web-grounded legal citations
               </p>
             </div>
           </div>
@@ -152,21 +151,21 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
         </div>
 
         {/* Live Search Toggle Bar */}
-        <div className="px-4 py-2.5 bg-slate-950/50 border-b border-slate-800 flex items-center justify-between text-xs">
+        <div className="px-4 py-2.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between text-xs font-mono">
           <label className="flex items-center gap-2 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={includeWebSearch}
               onChange={(e) => setIncludeWebSearch(e.target.checked)}
-              className="rounded bg-slate-800 border-slate-700 text-cyan-500 focus:ring-0"
+              className="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0"
             />
             <Globe className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="text-slate-300 font-medium">
-              Live Web Search via Tavily API
+            <span className="text-slate-300 text-xs font-medium">
+              LIVE WEB GROUNDING (TAVILY API)
             </span>
           </label>
-          <span className="text-[11px] text-slate-500 hidden sm:inline">
-            Searches recent legislative gazettes & legal news
+          <span className="text-[10px] text-slate-500 hidden sm:inline uppercase">
+            Active Legislative Gazette Crawl
           </span>
         </div>
 
@@ -180,25 +179,25 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
               }`}
             >
               {msg.role === "assistant" && (
-                <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 text-cyan-400 mt-1">
-                  <Bot className="w-4 h-4" />
+                <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center shrink-0 text-cyan-400 mt-1">
+                  <Terminal className="w-4 h-4" />
                 </div>
               )}
 
               <div
                 className={`max-w-[85%] rounded-2xl p-4 text-xs leading-relaxed ${
                   msg.role === "user"
-                    ? "bg-cyan-600 text-white rounded-tr-none shadow-md"
-                    : "bg-slate-950/80 border border-slate-800 text-slate-200 rounded-tl-none"
+                    ? "bg-cyan-600 text-slate-950 font-medium rounded-tr-none shadow-md font-sans"
+                    : "bg-[#090d19] border border-slate-800 text-slate-200 rounded-tl-none font-sans"
                 }`}
               >
-                <div className="whitespace-pre-wrap font-sans">{msg.content}</div>
+                <div className="whitespace-pre-wrap">{msg.content}</div>
 
                 {/* Sources / Citations */}
                 {msg.sources && msg.sources.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-slate-800/80">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
-                      Grounding Citations (Tavily Web Search):
+                  <div className="mt-3 pt-3 border-t border-slate-800">
+                    <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+                      Grounding Citations:
                     </span>
                     <div className="space-y-1">
                       {msg.sources.map((s, idx) => (
@@ -207,7 +206,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
                           href={s.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex items-center gap-1.5 text-[11px] text-cyan-400 hover:text-cyan-300 hover:underline truncate"
+                          className="flex items-center gap-1.5 text-[11px] text-cyan-400 hover:text-cyan-300 hover:underline truncate font-mono"
                         >
                           <ExternalLink className="w-3 h-3 shrink-0" />
                           <span className="truncate">{s.title || s.url}</span>
@@ -219,7 +218,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
 
                 <div
                   className={`text-[9px] mt-2 font-mono ${
-                    msg.role === "user" ? "text-cyan-100/70" : "text-slate-500"
+                    msg.role === "user" ? "text-slate-900/80" : "text-slate-500"
                   }`}
                 >
                   {msg.timestamp}
@@ -235,12 +234,12 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
           ))}
 
           {isLoading && (
-            <div className="flex gap-3 items-center text-slate-400 text-xs">
-              <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 text-cyan-400">
+            <div className="flex gap-3 items-center text-slate-400 text-xs font-mono">
+              <div className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center shrink-0 text-cyan-400">
                 <Loader2 className="w-4 h-4 animate-spin" />
               </div>
               <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 italic">
-                Searching web and analyzing comparative legal statutes with Groq...
+                Crawling web telemetry and analyzing comparative statutes with Groq...
               </div>
             </div>
           )}
@@ -249,16 +248,16 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
         </div>
 
         {/* Quick Query Pills */}
-        <div className="px-4 py-2 border-t border-slate-800/80 bg-slate-950/40 overflow-x-auto whitespace-nowrap">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] uppercase font-bold text-slate-500 shrink-0">
-              Quick Queries:
+        <div className="px-4 py-2 border-t border-slate-800/80 bg-slate-950 overflow-x-auto whitespace-nowrap">
+          <div className="flex items-center gap-2 font-mono">
+            <span className="text-[9px] uppercase font-bold text-slate-500 shrink-0">
+              QUICK QUERIES:
             </span>
             {presetQueries.map((preset, idx) => (
               <button
                 key={idx}
                 onClick={() => handleSend(preset)}
-                className="px-2.5 py-1 rounded-full bg-slate-800/70 hover:bg-slate-700 text-slate-300 hover:text-white text-[11px] border border-slate-700 shrink-0 transition-colors"
+                className="px-2.5 py-1 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[10px] border border-slate-700/80 shrink-0 transition-colors"
               >
                 {preset}
               </button>
@@ -267,7 +266,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
         </div>
 
         {/* Input Bar */}
-        <div className="p-4 border-t border-slate-800 bg-slate-950">
+        <div className="p-4 border-t border-slate-800 bg-[#070b14]">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -279,13 +278,13 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
               type="text"
               value={inputQuery}
               onChange={(e) => setInputQuery(e.target.value)}
-              placeholder="Ask about cyber laws, strictness, penalties, or pending acts..."
-              className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
+              placeholder="Query statutory strictness, cross-border penalties, or pending acts..."
+              className="flex-1 bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
             />
             <button
               type="submit"
               disabled={isLoading || !inputQuery.trim()}
-              className="p-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:from-cyan-500 hover:to-blue-500 transition-all shadow-md shadow-cyan-500/20"
+              className="p-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:from-cyan-500 hover:to-blue-500 transition-all shadow-md shadow-cyan-500/20 border border-cyan-400/30"
             >
               <Send className="w-4 h-4" />
             </button>

@@ -19,6 +19,12 @@ export interface AICybercrimeDetail {
   strictnessRating: "Very High" | "High" | "Medium" | "Low" | "Emerging";
 }
 
+export interface StrictnessFactor {
+  pillar: string;
+  weight: string;
+  rationale: string;
+}
+
 export interface CountryCyberLaw {
   id: string;
   country: string;
@@ -27,12 +33,17 @@ export interface CountryCyberLaw {
   continent: "North America" | "Europe" | "Asia-Pacific" | "Middle East" | "Latin America" | "Africa";
   strictnessScore: number; // 1.0 to 10.0
   strictnessRating: "Very High" | "High" | "Moderate" | "Developing";
+  strictnessRationale: string; // EXPLICIT REASONING answering: Why is this country rated this strict?
+  strictnessFactors: StrictnessFactor[]; // Substantive breakdown
   breachReportingHours: string;
+  conciseBreachMandate: string; // Zero-ellipsis formatted string
   extraterritorialReach: boolean;
   leadEnforcementAgency: string;
   primaryActs: LawDetail[];
   pendingOrDraftActs: LawDetail[]; // SPECIFIC REQUIREMENT: Available but not notified as laws yet
+  pipelineHighlight: string; // Explicit explanation of what's in the legislative pipeline
   aiCybercrime: AICybercrimeDetail;
+  aiGovernanceSummary: string; // Substantive summary answering: What does the AI law actually enforce?
   keyHighlights: string[];
 }
 
@@ -45,7 +56,14 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Asia-Pacific",
     strictnessScore: 8.4,
     strictnessRating: "High",
+    strictnessRationale: "Driven by the world's fastest mandatory breach notification window (6 hours to CERT-In), compulsory 5-year log retention directives, and life imprisonment for Sec 66F cyber terrorism.",
+    strictnessFactors: [
+      { pillar: "Disclosure Urgency", weight: "Critical", rationale: "Strictest globally: 6-hour disclosure to CERT-In for 20+ incident categories." },
+      { pillar: "Penal Severity", weight: "High", rationale: "Life imprisonment for attacks compromising sovereign infrastructure (IT Act Sec 66F)." },
+      { pillar: "Enforcement Gap", weight: "Moderate", rationale: "DPDP Act 2023 passed with up to ₹250 Cr fines, but operating rules await formal Gazette notification." },
+    ],
     breachReportingHours: "6 Hours (CERT-In Mandate)",
+    conciseBreachMandate: "6 Hours to CERT-In (Fastest globally)",
     extraterritorialReach: true,
     leadEnforcementAgency: "CERT-In & Indian Cyber Crime Coordination Centre (I4C)",
     primaryActs: [
@@ -112,6 +130,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
         pendingNoticeDetails: "Pre-legislative consultation paper released; full bill text awaiting formal cabinet introduction and Parliamentary debate."
       }
     ],
+    pipelineHighlight: "DPDP Act Rules: Enacted Aug 2023; pending Gazette notification of Data Protection Board operating rules (fines up to ₹250 Cr).",
     aiCybercrime: {
       hasDedicatedAILaw: false,
       status: "pending",
@@ -124,6 +143,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
       ],
       strictnessRating: "Medium"
     },
+    aiGovernanceSummary: "MeitY IT Rules Advisories: Mandatory 24-36h takedown for synthetic deepfakes under Sec 66D/67A; algorithmic accountability codified in upcoming Digital India Act.",
     keyHighlights: [
       "World's fastest mandatory breach notification window (6 hours to CERT-In).",
       "Explicit life imprisonment for cyber terrorism under IT Act Sec 66F.",
@@ -138,7 +158,14 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "North America",
     strictnessScore: 9.1,
     strictnessRating: "Very High",
+    strictnessRationale: "Reflects aggressive global extraterritorial reach under CFAA with cumulative life sentences, mandatory 4-day SEC Form 8-K disclosures for public firms, and CISA 72h CIRCIA critical infrastructure reporting.",
+    strictnessFactors: [
+      { pillar: "Extraterritorial Prosecution", weight: "Extreme", rationale: "Extensive DOJ cross-border indictments and arrests of foreign state and ransomware hackers." },
+      { pillar: "Regulatory Enforcement", weight: "Very High", rationale: "SEC 4-day material incident disclosure; FTC 20-year consent decrees for data negligence." },
+      { pillar: "Penal Sentences", weight: "Severe", rationale: "Cumulative federal counts under 18 U.S.C. § 1030 yielding 20+ years to life imprisonment." },
+    ],
     breachReportingHours: "72 Hours (CIRCIA) / 4 Days (SEC for public co.)",
+    conciseBreachMandate: "72h Critical Infra (CIRCIA) · 4 Days SEC 8-K",
     extraterritorialReach: true,
     leadEnforcementAgency: "FBI Cyber Division, CISA, & US Secret Service",
     primaryActs: [
@@ -202,6 +229,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
         pendingNoticeDetails: "NPRM issued; final rule publication and formal effective date scheduled for 2025."
       }
     ],
+    pipelineHighlight: "DEFIANCE Act (Passed Senate July 2024) · CISA CIRCIA Final Rulemaking (Mandatory 24h ransom reporting effective 2025).",
     aiCybercrime: {
       hasDedicatedAILaw: false,
       status: "pending",
@@ -214,6 +242,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
       ],
       strictnessRating: "High"
     },
+    aiGovernanceSummary: "Federal EO 14110 & DEFIANCE Act: FTC Sec 5 enforcement on deceptive AI; FCC ban on AI robocalls; state-level criminal bans on synthetic CSAM.",
     keyHighlights: [
       "Extremely aggressive global extraterritorial reach (frequent indictments of foreign hackers).",
       "SEC 4-day material cybersecurity incident reporting rule.",
@@ -228,7 +257,14 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Europe",
     strictnessScore: 9.3,
     strictnessRating: "Very High",
+    strictnessRationale: "Strictest globally due to personal C-suite liability for security non-compliance, up to 4% worldwide turnover fines under GDPR, and mandatory 24-hr initial incident alert under NIS2.",
+    strictnessFactors: [
+      { pillar: "Executive Debarment", weight: "Critical", rationale: "NIS2 Art. 20 allows temporary bans on C-level directors for persistent cybersecurity negligence." },
+      { pillar: "Turnover-Based Fines", weight: "Extreme", rationale: "Fines scale to €20M / 4% global revenue (GDPR) and €10M / 2% global revenue (NIS2)." },
+      { pillar: "Supply Chain Auditing", weight: "Very High", rationale: "Mandatory third-party cyber auditing across 18 critical and essential infrastructure sectors." },
+    ],
     breachReportingHours: "72 Hours (GDPR) / 24 Hours Early Warning (NIS2)",
+    conciseBreachMandate: "24h Early Warning (NIS2) · 72h Full Notice (GDPR)",
     extraterritorialReach: true,
     leadEnforcementAgency: "ENISA, Europol EC3, & National CSIRTs (e.g. BSI Germany)",
     primaryActs: [
@@ -278,6 +314,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
         pendingNoticeDetails: "Passed into law; operative enforcement phased over 2024-2027 transition timeline (reporting obligations trigger first in 2026)."
       }
     ],
+    pipelineHighlight: "Cyber Resilience Act (CRA): Approved Oct 2024; mandates CE cybersecurity marking and SBOM for commercial software (fines up to €15M / 2.5%).",
     aiCybercrime: {
       hasDedicatedAILaw: true,
       status: "enacted",
@@ -290,6 +327,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
       ],
       strictnessRating: "Very High"
     },
+    aiGovernanceSummary: "EU AI Act (Regulation 2024/1689): Criminalizes biometric mass surveillance & cognitive manipulation; mandates deepfake watermarks; fines up to €35M / 7%.",
     keyHighlights: [
       "World's gold standard for AI governance (EU AI Act enacted 2024).",
       "Executive personal disqualification for C-level directors failing cybersecurity oversight.",
@@ -304,7 +342,14 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Europe",
     strictnessScore: 8.7,
     strictnessRating: "High",
+    strictnessRationale: "Features life imprisonment under CMA Sec 3ZA for cyberattacks causing catastrophic damage to national security, reinforced by Online Safety Act executive jail provisions and UK GDPR fines.",
+    strictnessFactors: [
+      { pillar: "Statutory Max Prison", weight: "Severe", rationale: "Life sentence under CMA Section 3ZA for cyber offenses threatening human welfare or defense." },
+      { pillar: "Platform Executive Accountability", weight: "High", rationale: "Online Safety Act 2023 subjects senior platform managers to criminal liability for non-compliance." },
+      { pillar: "Turnover Penalties", weight: "High", rationale: "ICO fines up to £17.5M or 4% revenue; OSA fines up to £18M or 10% global turnover." },
+    ],
     breachReportingHours: "72 Hours (UK GDPR) / Promptly to ICO",
+    conciseBreachMandate: "72 Hours to ICO (UK GDPR)",
     extraterritorialReach: true,
     leadEnforcementAgency: "National Crime Agency (NCA) National Cyber Crime Unit & NCSC",
     primaryActs: [
@@ -354,6 +399,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
         pendingNoticeDetails: "Under consultation; formal legislative bill slated for introduction in upcoming parliamentary session."
       }
     ],
+    pipelineHighlight: "CMA Modernization Bill: Consultation on mandatory ransomware payment disclosure and safe harbor for white-hat ethical researchers.",
     aiCybercrime: {
       hasDedicatedAILaw: false,
       status: "pending",
@@ -366,6 +412,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
       ],
       strictnessRating: "Medium"
     },
+    aiGovernanceSummary: "Online Safety Act 2023: Criminalizes non-consensual deepfake creation/sharing; empowers Ofcom to fine tech platforms up to £18M or 10% global revenue.",
     keyHighlights: [
       "Life sentence provision under Sec 3ZA for critical infrastructure devastation.",
       "Criminalized sharing and creation of intimate deepfakes without consent in 2024.",
@@ -380,7 +427,14 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Asia-Pacific",
     strictnessScore: 9.2,
     strictnessRating: "Very High",
+    strictnessRationale: "Enforces an ultra-strict 2-hour reporting mandate for Critical Information Infrastructure (CII), sentences up to 20 years for targeting national systems, and proactive ministerial takeover powers under 2024 amendments.",
+    strictnessFactors: [
+      { pillar: "Reporting Speed", weight: "Extreme", rationale: "Mandatory 2-hour incident reporting to CSA for Critical Information Infrastructure." },
+      { pillar: "Statutory Max Prison", weight: "Severe", rationale: "Up to 20 years imprisonment for attacks targeting protected national systems." },
+      { pillar: "Infrastructure Reach", weight: "Very High", rationale: "2024 Amendment Act extends regulation to cloud clusters and foundational digital infrastructure." },
+    ],
     breachReportingHours: "2 Hours (CII Incident to CSA) / 3 Days (PDPC)",
+    conciseBreachMandate: "2 Hours for Critical Infrastructure (CSA)",
     extraterritorialReach: true,
     leadEnforcementAgency: "Cyber Security Agency of Singapore (CSA)",
     primaryActs: [
@@ -430,6 +484,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
         pendingNoticeDetails: "Framework published; binding sectoral directives being rolled out by the Infocomm Media Development Authority (IMDA)."
       }
     ],
+    pipelineHighlight: "Model AI Governance Code: Transitioning voluntary Generative AI safety guidelines into binding statutory sector directives via IMDA.",
     aiCybercrime: {
       hasDedicatedAILaw: true,
       status: "enacted",
@@ -442,6 +497,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
       ],
       strictnessRating: "High"
     },
+    aiGovernanceSummary: "Elections Act 2024 & AI Verify: Criminal ban on deepfake candidate representations; world-first open-source LLM governance & red-teaming toolkit.",
     keyHighlights: [
       "Ultra-strict 2-hour reporting mandate for critical infrastructure incidents.",
       "Sentences up to 20 years for targeting national security or water/energy grids.",
@@ -456,7 +512,14 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Asia-Pacific",
     strictnessScore: 9.6,
     strictnessRating: "Very High",
+    strictnessRationale: "Highest global strictness: total state data localization, mandatory zero-day vulnerability reporting to state before vendors, strict algorithmic licensing, and life imprisonment for state cyber sabotage.",
+    strictnessFactors: [
+      { pillar: "Vulnerability Control", weight: "Extreme", rationale: "Security researchers are legally barred from disclosing zero-day exploits abroad without prior state ministry approval." },
+      { pillar: "Data Sovereign Localization", weight: "Extreme", rationale: "Core and important data must remain on domestic servers; cross-border transfer requires CAC security clearance." },
+      { pillar: "State Penalties", weight: "Severe", rationale: "Penal Code Articles 285/286 provide life imprisonment for sabotage against critical state information systems." },
+    ],
     breachReportingHours: "Immediate / Within 8 Hours to CAC",
+    conciseBreachMandate: "Immediate / Within 8 Hours to CAC",
     extraterritorialReach: true,
     leadEnforcementAgency: "Cyberspace Administration of China (CAC) & Ministry of Public Security",
     primaryActs: [
@@ -505,6 +568,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
         pendingNoticeDetails: "Included in the State Council 2024 legislative work plan; awaiting National People's Congress standing committee review."
       }
     ],
+    pipelineHighlight: "National AI Law (Draft 2024): Comprehensive unified AI code mandating pre-release state security filings & model red-teaming.",
     aiCybercrime: {
       hasDedicatedAILaw: true,
       status: "enacted",
@@ -517,6 +581,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
       ],
       strictnessRating: "Very High"
     },
+    aiGovernanceSummary: "CAC Deep Synthesis Provisions: Mandatory visible and invisible cryptographic watermarking; prior CAC algorithm registry filing; criminal charges for AI scams.",
     keyHighlights: [
       "Strict data localization & state security classification of all enterprise data.",
       "First country to criminally prosecute individuals for deepfake face-swapping fraud.",
@@ -531,7 +596,14 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Middle East",
     strictnessScore: 9.0,
     strictnessRating: "Very High",
+    strictnessRationale: "Explicit life imprisonment for cyberattacks compromising sovereign government systems, mandatory deportation of expatriate offenders, and strict criminalization of online disinformation.",
+    strictnessFactors: [
+      { pillar: "Sovereign Target Sentences", weight: "Severe", rationale: "Article 10 imposes life imprisonment for unauthorized access to defense or state networks." },
+      { pillar: "Expatriate Deportation", weight: "High", rationale: "Mandatory statutory deportation for any foreign resident convicted under Decree-Law No. 34." },
+      { pillar: "Financial Restitution", weight: "High", rationale: "Mandatory minimum fines starting from AED 100,000 reaching AED 5 Million." },
+    ],
     breachReportingHours: "Promptly / Within 72 Hours",
+    conciseBreachMandate: "Within 72 Hours (Federal Council)",
     extraterritorialReach: true,
     leadEnforcementAgency: "UAE Cyber Security Council & Federal Public Prosecution",
     primaryActs: [
@@ -568,6 +640,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
         pendingNoticeDetails: "Framework adopted by Cabinet; technical compliance guidelines currently in phased rollout across Dubai and Abu Dhabi free zones."
       }
     ],
+    pipelineHighlight: "National AI Regulatory Framework: Cabinet-approved binding compliance rules for autonomous agents in finance and logistics.",
     aiCybercrime: {
       hasDedicatedAILaw: true,
       status: "enacted",
@@ -580,6 +653,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
       ],
       strictnessRating: "Very High"
     },
+    aiGovernanceSummary: "Federal Decree-Law No. 34 (Art. 44): Strict imprisonment and fines up to AED 500,000 for creating or distributing deepfakes intended to deceive or defame.",
     keyHighlights: [
       "Mandatory deportation for non-citizen residents convicted of cybercrimes.",
       "Life imprisonment for compromising government, defense, or utility networks.",
@@ -594,7 +668,14 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Asia-Pacific",
     strictnessScore: 8.8,
     strictnessRating: "High",
+    strictnessRationale: "Empowers the Australian Signals Directorate (ASD) to legally take physical control of private computer networks during catastrophic attacks, backed by mandatory 72h ransomware payment reporting.",
+    strictnessFactors: [
+      { pillar: "Intervention Powers", weight: "Extreme", rationale: "ASD possesses statutory authority to physically alter, access, or take over private corporate servers during crises." },
+      { pillar: "Ransomware Reporting", weight: "High", rationale: "2024 Cyber Security Bill mandates commercial disclosure of ransomware payments within 72 hours." },
+      { pillar: "eSafety Extraterritoriality", weight: "High", rationale: "Rapid 24-hour civil and criminal takedown notices issued globally for non-consensual synthetic media." },
+    ],
     breachReportingHours: "12 Hours (Critical Incident) / 72 Hours (General)",
+    conciseBreachMandate: "12h Critical Infrastructure · 72h General",
     extraterritorialReach: true,
     leadEnforcementAgency: "Australian Cyber Security Centre (ACSC) & Australian Federal Police (AFP)",
     primaryActs: [
@@ -644,6 +725,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
         pendingNoticeDetails: "Public consultation concluded in Oct 2024; drafting of formal legislative amendment currently underway."
       }
     ],
+    pipelineHighlight: "High-Risk AI Mandatory Guardrails: Drafting of binding statutory standards for synthetic media watermarking & automated decision audits.",
     aiCybercrime: {
       hasDedicatedAILaw: false,
       status: "pending",
@@ -656,6 +738,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
       ],
       strictnessRating: "High"
     },
+    aiGovernanceSummary: "Online Safety Act Amendments 2024: Criminalizes non-consensual sexual deepfakes; eSafety Commissioner issues fines up to AUD $660,000.",
     keyHighlights: [
       "Australian Signals Directorate (ASD) has unprecedented legal power to physically take control of a private company's servers during major attacks.",
       "Mandatory ransomware payment disclosure requirement.",
@@ -670,7 +753,14 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "North America",
     strictnessScore: 8.2,
     strictnessRating: "High",
+    strictnessRationale: "Pending Bill C-26 introduces massive daily penalties (up to $15M/day) for critical infrastructure cyber failures, paired with proposed 5-year criminal prison sentences for harmful AI under Bill C-27.",
+    strictnessFactors: [
+      { pillar: "Daily Compliance Fines", weight: "Very High", rationale: "Bill C-26 establishes penalties up to $15 Million CAD per day for non-compliant critical cyber systems." },
+      { pillar: "Criminal AI Deployment", weight: "High", rationale: "AIDA proposes 5-year prison terms for deploying deceitful AI causing serious harm or economic loss." },
+      { pillar: "Reporting Standard", weight: "Moderate", rationale: "Current OPC standard 'as soon as feasible' is being tightened to mandatory immediate notice under CCSPA." },
+    ],
     breachReportingHours: "As soon as feasible (OPC Mandate)",
+    conciseBreachMandate: "As Soon as Feasible (OPC Mandate)",
     extraterritorialReach: true,
     leadEnforcementAgency: "Canadian Centre for Cyber Security (CCCS) & RCMP Cybercrime Directorate",
     primaryActs: [
@@ -719,6 +809,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
         pendingNoticeDetails: "Under active clause-by-clause review by the Standing Committee on Industry and Technology (INDU)."
       }
     ],
+    pipelineHighlight: "Bill C-26 (ARCS): Imposes fines up to $15M/day on critical infrastructure · Bill C-27 (AIDA): Proposes 5-year prison terms for fraudulent AI systems.",
     aiCybercrime: {
       hasDedicatedAILaw: false,
       status: "pending",
@@ -731,6 +822,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
       ],
       strictnessRating: "High"
     },
+    aiGovernanceSummary: "Bill C-27 (AIDA): Proposes up to 5 years imprisonment & $25M fines for knowingly deploying fraudulent, manipulative, or harmful AI systems.",
     keyHighlights: [
       "Bill C-26 introduces massive daily penalties (up to $15M/day) for critical infrastructure cyber failures.",
       "First country to propose 5-year prison terms specifically for fraudulent and harmful AI systems under AIDA.",
@@ -745,7 +837,14 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Europe",
     strictnessScore: 9.4,
     strictnessRating: "Very High",
+    strictnessRationale: "World benchmark in state digital resilience: 24h RIA breach notification, immutable KSI blockchain verification for all state registers, and criminal statutes specifically penalizing offensive code creation.",
+    strictnessFactors: [
+      { pillar: "e-Governance Auditing", weight: "Extreme", rationale: "99% of public services run on X-Road with mandatory real-time cryptographic audit logging." },
+      { pillar: "Incident Reporting", weight: "Very High", rationale: "Mandatory 24-hour breach notification to Estonian Information System Authority (RIA)." },
+      { pillar: "Offensive Tool Penalization", weight: "High", rationale: "Penal Code § 208 criminalizes preparation and trading in offensive cyber exploitation tools." },
+    ],
     breachReportingHours: "24 Hours (RIA Mandate)",
+    conciseBreachMandate: "24 Hours to RIA Mandate",
     extraterritorialReach: true,
     leadEnforcementAgency: "Estonian Information System Authority (RIA) & NATO CCDCOE Host",
     primaryActs: [
@@ -794,6 +893,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
         pendingNoticeDetails: "Expert legal working group draft; aligning with the European Union AI Act harmonization."
       }
     ],
+    pipelineHighlight: "Kratt Act (Draft): Pioneer legal framework establishing algorithmic liability & automated agent governance on the state X-Road network.",
     aiCybercrime: {
       hasDedicatedAILaw: true,
       status: "enacted",
@@ -806,6 +906,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
       ],
       strictnessRating: "High"
     },
+    aiGovernanceSummary: "EU AI Act & Kratt Code: Governs automated government decision agents; penalizes synthetic media tampering with digital ID & Smart-ID.",
     keyHighlights: [
       "Home to the NATO Cooperative Cyber Defence Centre of Excellence (CCDCOE).",
       "99% of government services online, guarded by immutable Keyless Signature Infrastructure (KSI) blockchain.",
@@ -820,7 +921,14 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Asia-Pacific",
     strictnessScore: 8.5,
     strictnessRating: "High",
+    strictnessRationale: "Explicitly criminalizes the mere creation or possession of malicious virus code without legitimate cause, and is currently pioneering 'Active Cyber Defense' laws allowing state counter-intrusions.",
+    strictnessFactors: [
+      { pillar: "Inchoate Offense Penalties", weight: "Very High", rationale: "Article 168-2 penalizes creating or obtaining malware code even before any deployment occurs." },
+      { pillar: "Counter-Intrusion Reforms", weight: "Severe", rationale: "Draft Active Cyber Defense legislation authorizes preemptive neutralization of foreign hacker servers." },
+      { pillar: "Critical Industry Baselines", weight: "Moderate", rationale: "Cybersecurity Basic Act mandates strict operational defenses across 14 vital social infrastructure sectors." },
+    ],
     breachReportingHours: "Promptly (3-5 Days to PPC)",
+    conciseBreachMandate: "Promptly (3-5 Days to PPC)",
     extraterritorialReach: true,
     leadEnforcementAgency: "National Police Agency (NPA) Cyber Affairs Bureau & NISC",
     primaryActs: [
@@ -868,6 +976,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
         pendingNoticeDetails: "Under fierce constitutional and parliamentary debate; government aiming for formal Diet submission in 2025."
       }
     ],
+    pipelineHighlight: "Active Cyber Defense (ACD) Bill: Proposes legal authorization for Self-Defense Forces to preemptively hack foreign adversary C2 servers.",
     aiCybercrime: {
       hasDedicatedAILaw: false,
       status: "pending",
@@ -880,6 +989,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
       ],
       strictnessRating: "Medium"
     },
+    aiGovernanceSummary: "Hiroshima AI Process & Draft Basic Law: Moving from voluntary safety guidelines to binding prohibitions on malicious deepfake scams & extortion.",
     keyHighlights: [
       "Explicitly criminalizes the *creation* or *possession* of computer virus code even without deployment.",
       "Currently advancing groundbreaking 'Active Cyber Defense' laws to strike back at foreign state hackers.",
@@ -894,7 +1004,14 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Africa",
     strictnessScore: 8.0,
     strictnessRating: "High",
+    strictnessRationale: "Africa's benchmark statutory cyber law, imposing up to 15 years for cyber extortion and hacking, with mandatory incident reporting duties for electronic communications providers.",
+    strictnessFactors: [
+      { pillar: "Cyber Extortion Terms", weight: "High", rationale: "Part II of Cybercrimes Act provides up to 15 years for ransomware encryption and extortion." },
+      { pillar: "Malicious Communication", weight: "Moderate", rationale: "Part III specifically criminalizes sending intimate images without consent with up to 3 years imprisonment." },
+      { pillar: "Institutional Notification Gap", weight: "Moderate", rationale: "Crucial Chapter 6 administrative structures (24/7 Cyber Hub) remain pending presidential proclamation." },
+    ],
     breachReportingHours: "As soon as reasonably possible (Information Regulator)",
+    conciseBreachMandate: "As Soon as Reasonably Possible (POPIA)",
     extraterritorialReach: true,
     leadEnforcementAgency: "Cybercrime Hub (SAPS) & Information Regulator",
     primaryActs: [
@@ -929,6 +1046,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
         pendingNoticeDetails: "Core criminal sections enacted; Chapter 6 administrative structures awaiting official Presidential Gazetting."
       }
     ],
+    pipelineHighlight: "Cybercrimes Act Chapter 6: Pending presidential proclamation to formally activate the National Cybercrime Centre and 24/7 mutual assistance point.",
     aiCybercrime: {
       hasDedicatedAILaw: false,
       status: "none",
@@ -941,6 +1059,7 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
       ],
       strictnessRating: "Emerging"
     },
+    aiGovernanceSummary: "Cybercrimes Act (Part III): Prosecutes synthetic media under non-consensual image distribution and common law fraud; dedicated AI statute absent.",
     keyHighlights: [
       "Africa's most comprehensive statutory cybercrime legislation.",
       "Express criminalization of revenge porn and non-consensual intimate image distribution.",

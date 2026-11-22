@@ -2,7 +2,7 @@
 
 import React from "react";
 import { CountryCyberLaw } from "@/data/countries";
-import { Check, Plus, ArrowUpRight, Clock, ShieldAlert, Cpu } from "lucide-react";
+import { Check, Plus, ArrowUpRight, ShieldAlert, Cpu, AlertTriangle, BookOpen, Clock } from "lucide-react";
 
 interface CountryCardProps {
   country: CountryCyberLaw;
@@ -11,7 +11,7 @@ interface CountryCardProps {
   onSelectCountry: (country: CountryCyberLaw) => void;
 }
 
-// Clean cross-platform country flag / badge styling to prevent Windows emoji fallback text glitches
+// Clean cross-platform country flag / badge styling
 const COUNTRY_BADGES: Record<string, { label: string; accent: string }> = {
   in: { label: "IND", accent: "bg-[#FF9933]/15 text-[#B45309] border-[#FF9933]/40" },
   us: { label: "USA", accent: "bg-[#1E3A8A]/10 text-[#1E3A8A] border-[#1E3A8A]/30" },
@@ -45,28 +45,17 @@ export const CountryCard: React.FC<CountryCardProps> = ({
     return "bg-[#7C4A27]";
   };
 
-  // Concise penalty format without sprawling caveats
-  const getConcisePenalty = (fullPenalty: string) => {
-    if (!fullPenalty) return "Statutory Maximum";
-    if (fullPenalty.toLowerCase().includes("life")) return "Life Imprisonment";
-    if (fullPenalty.toLowerCase().includes("20 year")) return "Up to 20 Years";
-    if (fullPenalty.toLowerCase().includes("15 year")) return "Up to 15 Years";
-    if (fullPenalty.toLowerCase().includes("10 year")) return "Up to 10 Years";
-    if (fullPenalty.toLowerCase().includes("7 year")) return "Up to 7 Years";
-    if (fullPenalty.toLowerCase().includes("5 year")) return "Up to 5 Years";
-    if (fullPenalty.toLowerCase().includes("officer") || fullPenalty.toLowerCase().includes("ban")) return "Executive Disqualification";
-    return fullPenalty.split("(")[0].trim();
+  const primaryStatute = country.primaryActs[0];
+  const badgeInfo = COUNTRY_BADGES[country.id] || {
+    label: country.code,
+    accent: "bg-[#F4EFE6] text-[#78716C] border-[#EAE5DB]",
   };
 
-  const primaryStatute = country.primaryActs[0];
-  const pendingCount = country.pendingOrDraftActs?.length || 0;
-  const badgeInfo = COUNTRY_BADGES[country.id] || { label: country.code, accent: "bg-[#F4EFE6] text-[#78716C] border-[#EAE5DB]" };
-
   return (
-    <div className="editorial-card p-5 flex flex-col justify-between font-sans bg-white border border-[#EAE5DB] rounded-xl hover:border-[#D6CEBF] transition-all shadow-sm">
-      <div>
-        {/* Header: Styled Country Badge, Title & Strictness */}
-        <div className="flex items-start justify-between gap-3 mb-3">
+    <div className="editorial-card p-5 flex flex-col justify-between font-sans bg-white border border-[#EAE5DB] rounded-2xl hover:border-[#D6CEBF] transition-all shadow-sm">
+      <div className="space-y-3.5">
+        {/* Header: Styled Country Badge, Title & Strictness Score */}
+        <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <span
               className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded-md border ${badgeInfo.accent}`}
@@ -74,70 +63,90 @@ export const CountryCard: React.FC<CountryCardProps> = ({
               {badgeInfo.label}
             </span>
             <div>
-              <h3 className="text-base font-bold text-[#1C1917] tracking-tight leading-tight">
+              <h3 className="text-base font-bold text-[#1C1917] tracking-tight leading-snug">
                 {country.country}
               </h3>
               <span className="text-[11px] text-[#78716C]">
-                {country.continent}
+                {country.continent} • Lead: {country.leadEnforcementAgency.split("&")[0].trim()}
               </span>
             </div>
           </div>
 
           {/* Strictness Score Pill */}
           <div
-            className={`px-2 py-0.5 rounded-lg border font-mono text-xs font-bold ${getStrictnessStyle(
+            className={`px-2.5 py-1 rounded-lg border font-mono text-xs font-bold shrink-0 text-right ${getStrictnessStyle(
               country.strictnessScore
             )}`}
+            title={`Strictness Index: ${country.strictnessScore}/10 (${country.strictnessRating})`}
           >
-            <span>{country.strictnessScore.toFixed(1)} / 10</span>
+            <div>{country.strictnessScore.toFixed(1)} / 10</div>
+            <div className="text-[9px] uppercase tracking-wider font-semibold opacity-85">
+              {country.strictnessRating}
+            </div>
           </div>
         </div>
 
         {/* Minimalist Score Bar */}
-        <div className="w-full bg-[#F4EFE6] h-1 rounded-full overflow-hidden mb-4">
+        <div className="w-full bg-[#F4EFE6] h-1.5 rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-300 ${getScoreBarColor(country.strictnessScore)}`}
+            className={`h-full rounded-full transition-all duration-300 ${getScoreBarColor(
+              country.strictnessScore
+            )}`}
             style={{ width: `${(country.strictnessScore / 10) * 100}%` }}
           />
         </div>
 
-        {/* Core Statute Title (Full, unclipped) */}
-        <div className="mb-3.5 pb-3 border-b border-[#F4EFE6]">
-          <span className="text-[10px] uppercase font-semibold tracking-wider text-[#78716C] block mb-1">
-            Governing Statute
+        {/* SUBSTANTIVE REASONING: Strictness Rationale Callout */}
+        <div className="p-3 rounded-xl bg-[#FAF7F2] border border-[#EAE5DB] text-xs">
+          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#7C4A27] mb-1">
+            <ShieldAlert className="w-3.5 h-3.5 text-[#7C4A27]" />
+            <span>Strictness Rationale</span>
+          </div>
+          <p className="text-[#44403C] text-[11px] leading-relaxed">
+            {country.strictnessRationale}
+          </p>
+        </div>
+
+        {/* Core Governing Statute (Full, unclipped) */}
+        <div>
+          <span className="text-[10px] uppercase font-semibold tracking-wider text-[#78716C] block mb-0.5">
+            Primary Governing Statute
           </span>
-          <div className="text-xs font-semibold text-[#1C1917] leading-snug">
+          <div className="text-xs font-bold text-[#1C1917] leading-snug">
             {primaryStatute?.title}
           </div>
         </div>
 
-        {/* 2-Column Clean Metadata Grid (No clipping, generous room) */}
-        <div className="grid grid-cols-2 gap-2.5 text-xs mb-3.5">
-          <div className="p-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]/70">
-            <span className="text-[#78716C] text-[10px] uppercase font-medium tracking-wider block mb-0.5">
-              Max Penalty
+        {/* 2-Column Penalty & Breach Notice Specs (Zero Ellipsis Clipping) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <div className="p-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]/80 flex flex-col justify-between">
+            <span className="text-[#78716C] text-[10px] uppercase font-medium tracking-wider mb-0.5">
+              Statutory Maximum
             </span>
-            <span className="font-semibold text-[#C2410C] text-[11px] block">
-              {getConcisePenalty(primaryStatute?.maxPrison || "")}
+            <span className="font-bold text-[#C2410C] text-[11px] leading-snug">
+              {primaryStatute?.maxPrison}
             </span>
           </div>
 
-          <div className="p-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]/70">
-            <span className="text-[#78716C] text-[10px] uppercase font-medium tracking-wider block mb-0.5">
-              Breach Notice
+          <div className="p-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]/80 flex flex-col justify-between">
+            <span className="text-[#78716C] text-[10px] uppercase font-medium tracking-wider mb-0.5">
+              Breach Disclosure
             </span>
-            <span className="font-semibold text-[#1C1917] text-[11px] block truncate" title={country.breachReportingHours}>
-              {country.breachReportingHours}
+            <span className="font-semibold text-[#1C1917] text-[11px] leading-snug">
+              {country.conciseBreachMandate || country.breachReportingHours}
             </span>
           </div>
         </div>
 
-        {/* AI Law & Legislative Pipeline Status */}
-        <div className="space-y-1.5 text-xs mb-2">
+        {/* AI CYBERCRIME GOVERNANCE: Substantive Rule Callout */}
+        <div className="p-3 rounded-xl bg-[#F5F2EB]/70 border border-[#EAE5DB] text-xs space-y-1">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-[#78716C] text-[11px]">AI Legislation</span>
+            <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#7C4A27]">
+              <Cpu className="w-3.5 h-3.5 text-[#7C4A27]" />
+              <span>AI & Deepfake Governance</span>
+            </span>
             <span
-              className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded ${
+              className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded ${
                 country.aiCybercrime.status === "enacted"
                   ? "bg-[#E8F0EC] text-[#2D5A43] border border-[#C2D6CC]"
                   : country.aiCybercrime.status === "pending"
@@ -149,33 +158,38 @@ export const CountryCard: React.FC<CountryCardProps> = ({
                 ? "Enacted"
                 : country.aiCybercrime.status === "pending"
                 ? "Pending Bill"
-                : "General Statutes"}
+                : "General Criminal Law"}
             </span>
           </div>
-
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-[#78716C] text-[11px]">Legislative Pipeline</span>
-            {pendingCount > 0 ? (
-              <span className="text-[11px] font-medium text-[#B45309] flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#B45309]" />
-                <span>{pendingCount} {pendingCount === 1 ? "Bill" : "Bills"} Awaiting Gazette</span>
-              </span>
-            ) : (
-              <span className="text-[11px] text-[#78716C]">Fully Notified</span>
-            )}
-          </div>
+          <p className="text-[#57534E] text-[11px] leading-relaxed">
+            {country.aiGovernanceSummary}
+          </p>
         </div>
+
+        {/* LEGISLATIVE PIPELINE (Active Unnotified / Draft Bills) */}
+        {country.pipelineHighlight && (
+          <div className="p-2.5 rounded-lg bg-[#FEF3C7]/40 border border-[#FDE68A] text-xs">
+            <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#B45309] mb-0.5">
+              <AlertTriangle className="w-3 h-3 text-[#B45309]" />
+              <span>Legislative Pipeline (Pending Gazette)</span>
+            </div>
+            <p className="text-[#78350F] text-[11px] leading-relaxed">
+              {country.pipelineHighlight}
+            </p>
+          </div>
+        )}
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex items-center gap-2 pt-3 border-t border-[#EAE5DB] mt-2">
+      {/* Action Buttons: Compare & Full Dossier */}
+      <div className="flex items-center gap-2 pt-4 border-t border-[#EAE5DB] mt-4">
         <button
           onClick={() => onToggleCompare(country.id)}
-          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
             isSelectedForCompare
               ? "bg-[#7C4A27] text-white shadow-sm"
               : "bg-[#FAF7F2] hover:bg-[#F3EFE6] text-[#1C1917] border border-[#EAE5DB]"
           }`}
+          title={isSelectedForCompare ? "Remove from comparison" : "Add to comparison (up to 3)"}
         >
           {isSelectedForCompare ? (
             <>
@@ -192,11 +206,12 @@ export const CountryCard: React.FC<CountryCardProps> = ({
 
         <button
           onClick={() => onSelectCountry(country)}
-          className="flex items-center justify-center gap-1 px-3.5 py-2 rounded-lg text-xs font-medium bg-[#FAF7F2] hover:bg-[#F3EFE6] text-[#78716C] hover:text-[#1C1917] border border-[#EAE5DB] transition-colors"
-          title="Inspect statutory dossier"
+          className="flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#FAF7F2] hover:bg-[#F3EFE6] text-[#7C4A27] hover:text-[#5B3419] border border-[#EAE5DB] transition-colors"
+          title="Open complete statutory dossier with section breakdown and precedents"
         >
-          <span>Dossier</span>
-          <ArrowUpRight className="w-3.5 h-3.5" />
+          <BookOpen className="w-3.5 h-3.5" />
+          <span>Full Legal Dossier</span>
+          <ArrowUpRight className="w-3.5 h-3.5 opacity-70" />
         </button>
       </div>
     </div>

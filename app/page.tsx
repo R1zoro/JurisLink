@@ -321,7 +321,7 @@ export default function Home() {
           <div className="flex items-center gap-4 text-[#78716C]">
             <span>Next.js 14</span>
             <span>•</span>
-            <span className="text-[#7C4A27]">Groq Llama-3.3 & Tavily Grounded</span>
+            <span className="text-[#7C4A27]">Groq Neural Inference & Tavily Grounded</span>
           </div>
         </div>
       </footer>

@@ -66,15 +66,41 @@ Your role:
           country ? ` (Focus jurisdiction: ${country})` : ""
         }\n\nPlease provide an insightful, highly structured legal analysis addressing statutory penalties, pending bills, and real-world strictness.`;
 
-    const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userMessage },
-      ],
-      temperature: 0.3,
-      max_tokens: 1024,
-    });
+    // Candidate models in preference order (verified active on Groq)
+    const CANDIDATE_MODELS = [
+      "openai/gpt-oss-120b",
+      "qwen/qwen3.8-27b",
+      "openai/gpt-oss-20b",
+    ];
+
+    let completion: any = null;
+    let modelUsed = "";
+    let lastError: any = null;
+
+    for (const modelCandidate of CANDIDATE_MODELS) {
+      try {
+        completion = await groq.chat.completions.create({
+          model: modelCandidate,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userMessage },
+          ],
+          temperature: 0.3,
+          max_tokens: 1024,
+        });
+        if (completion && completion.choices?.[0]?.message?.content) {
+          modelUsed = modelCandidate;
+          break;
+        }
+      } catch (err: any) {
+        console.warn(`Model ${modelCandidate} failed: ${err.message}. Trying next fallback...`);
+        lastError = err;
+      }
+    }
+
+    if (!completion || !completion.choices?.[0]?.message?.content) {
+      throw lastError || new Error("All Groq legal intelligence models failed to respond.");
+    }
 
     const answer =
       completion.choices[0]?.message?.content ||
@@ -83,6 +109,7 @@ Your role:
     return NextResponse.json({
       answer,
       sources,
+      model: modelUsed,
     });
   } catch (error: any) {
     console.error("Error in AI research endpoint:", error);

@@ -98,6 +98,34 @@ export const CountryDetailModal: React.FC<CountryDetailModalProps> = ({
             </div>
           </div>
 
+          {/* Strictness Evaluation Breakdown */}
+          <div className="p-4 rounded-xl bg-white border border-[#EAE5DB] shadow-sm space-y-3">
+            <div className="flex items-center gap-2">
+              <ShieldAlert className="w-4 h-4 text-[#7C4A27]" />
+              <h4 className="text-xs font-bold text-[#1C1917] uppercase tracking-wider">
+                Strictness Index Rationale ({country.strictnessScore.toFixed(1)} / 10 · {country.strictnessRating})
+              </h4>
+            </div>
+            <p className="text-xs text-[#44403C] leading-relaxed">
+              {country.strictnessRationale}
+            </p>
+            {country.strictnessFactors && country.strictnessFactors.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t border-[#F4EFE6]">
+                {country.strictnessFactors.map((factor, idx) => (
+                  <div key={idx} className="p-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]/70 text-xs">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-[#1C1917] text-[11px]">{factor.pillar}</span>
+                      <span className="text-[9px] font-mono uppercase px-1.5 py-0.2 rounded bg-[#EAE5DB] text-[#7C4A27] font-semibold">
+                        {factor.weight}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#78716C] leading-snug">{factor.rationale}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Key Strategic Highlights */}
           <div className="p-4 rounded-xl bg-white border border-[#EAE5DB] shadow-sm">
             <h4 className="text-xs font-semibold text-[#1C1917] uppercase tracking-wider mb-2">

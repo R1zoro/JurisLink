@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { CountryCyberLaw } from "@/data/countries";
+import { WORLD_MAP_PATHS } from "@/data/worldMapPaths";
 import {
   ZoomIn,
   ZoomOut,
@@ -9,42 +10,28 @@ import {
   Scale,
   Clock,
   ArrowRight,
-  ShieldAlert,
+  Shield,
   X,
   Radio,
-  ExternalLink,
-  Layers,
-  Filter,
   Flame,
   AlertTriangle,
   Globe,
   Crosshair,
   Sparkles,
+  Cpu,
+  BookOpen,
 } from "lucide-react";
-
-interface JurisdictionNode {
-  id: string;
-  name: string;
-  code: string;
-  lat: number;
-  lng: number;
-  strictness: number;
-  strictnessRationale: string;
-  pendingCount: number;
-  breachWindow: string;
-  leadAgency: string;
-  primaryLaw: string;
-}
 
 export type ThreatCategory =
   | "all"
   | "ransomware"
   | "critical_infra"
   | "ai_deepfake"
+  | "ddos"
   | "espionage"
   | "supply_chain";
 
-interface ThreatLink {
+export interface ThreatLink {
   id: string;
   sourceId: string;
   sourceName: string;
@@ -52,245 +39,119 @@ interface ThreatLink {
   targetName: string;
   category: ThreatCategory;
   categoryLabel: string;
+  color: string;
   incidentType: string;
+  protocolTag: string;
   statutoryContext: string;
   severity: "critical" | "high" | "elevated";
 }
 
-// 12 Authentic Sovereign Jurisdictions with full strictness justifications
-const JURISDICTION_NODES: JurisdictionNode[] = [
-  {
-    id: "us",
-    name: "United States",
-    code: "USA",
-    lat: 39.5,
-    lng: -98.3,
-    strictness: 9.1,
-    strictnessRationale: "Extraterritorial CFAA prosecutions, SEC 4-day disclosure, and CISA 72h CIRCIA critical infrastructure mandate.",
-    pendingCount: 2,
-    breachWindow: "72h CIRCIA · 4d SEC 8-K",
-    leadAgency: "FBI Cyber & CISA",
-    primaryLaw: "CFAA (18 U.S.C. § 1030)",
-  },
-  {
-    id: "in",
-    name: "India",
-    code: "IND",
-    lat: 22.5,
-    lng: 78.9,
-    strictness: 8.4,
-    strictnessRationale: "Fastest mandatory breach notification on earth (6h to CERT-In), 5-year log retention, and life imprisonment for cyber terrorism.",
-    pendingCount: 2,
-    breachWindow: "6h CERT-In Mandate",
-    leadAgency: "CERT-In & I4C",
-    primaryLaw: "Information Technology Act, 2000",
-  },
-  {
-    id: "eu",
-    name: "European Union",
-    code: "EU",
-    lat: 50.8,
-    lng: 10.4,
-    strictness: 9.3,
-    strictnessRationale: "Personal C-suite liability for security negligence, up to 4% worldwide turnover fines, and mandatory 24-hr initial incident alert under NIS2.",
-    pendingCount: 1,
-    breachWindow: "24h Alert (NIS2) · 72h GDPR",
-    leadAgency: "ENISA & National CSIRTs",
-    primaryLaw: "NIS 2 Directive & GDPR",
-  },
-  {
-    id: "uk",
-    name: "United Kingdom",
-    code: "GBR",
-    lat: 54.5,
-    lng: -3.4,
-    strictness: 8.7,
-    strictnessRationale: "Life sentence under CMA Sec 3ZA for critical infrastructure devastation, reinforced by Online Safety Act executive jail provisions.",
-    pendingCount: 1,
-    breachWindow: "72 Hours to ICO (UK GDPR)",
-    leadAgency: "NCA Cyber & NCSC",
-    primaryLaw: "Computer Misuse Act 1990",
-  },
-  {
-    id: "sg",
-    name: "Singapore",
-    code: "SGP",
-    lat: 1.35,
-    lng: 103.8,
-    strictness: 9.2,
-    strictnessRationale: "Ultra-strict 2-hour reporting for Critical Information Infrastructure (CII), up to 20-year prison terms, and ministerial takeover powers.",
-    pendingCount: 1,
-    breachWindow: "2h CII Incident (CSA)",
-    leadAgency: "Cyber Security Agency (CSA)",
-    primaryLaw: "Cybersecurity Act 2024",
-  },
-  {
-    id: "cn",
-    name: "China",
-    code: "CHN",
-    lat: 35.8,
-    lng: 104.1,
-    strictness: 9.6,
-    strictnessRationale: "Total state data localization, mandatory zero-day reporting to state before vendors, and life imprisonment for cyber sabotage.",
-    pendingCount: 1,
-    breachWindow: "Immediate / 8h CAC",
-    leadAgency: "Cyberspace Admin (CAC)",
-    primaryLaw: "Cybersecurity Law (CSL)",
-  },
-  {
-    id: "ae",
-    name: "United Arab Emirates",
-    code: "ARE",
-    lat: 24.4,
-    lng: 54.3,
-    strictness: 9.0,
-    strictnessRationale: "Life imprisonment for hacking sovereign systems, mandatory deportation of expatriate offenders, and fines up to AED 5 Million.",
-    pendingCount: 1,
-    breachWindow: "Within 72 Hours (Council)",
-    leadAgency: "Cyber Security Council",
-    primaryLaw: "Federal Decree-Law No. 34",
-  },
-  {
-    id: "au",
-    name: "Australia",
-    code: "AUS",
-    lat: -25.2,
-    lng: 133.7,
-    strictness: 8.8,
-    strictnessRationale: "ASD statutory authority to physically take over private corporate servers during crises, backed by mandatory 72h ransomware reporting.",
-    pendingCount: 1,
-    breachWindow: "12h Critical · 72h General",
-    leadAgency: "ACSC & Federal Police",
-    primaryLaw: "SOCI Act 2018 & Cyber Bill",
-  },
-  {
-    id: "ca",
-    name: "Canada",
-    code: "CAN",
-    lat: 56.1,
-    lng: -106.3,
-    strictness: 8.2,
-    strictnessRationale: "Bill C-26 daily penalties up to $15M/day for critical infrastructure failures, paired with proposed 5-year prison terms for harmful AI.",
-    pendingCount: 2,
-    breachWindow: "As Soon as Feasible (OPC)",
-    leadAgency: "CCCS & RCMP",
-    primaryLaw: "Criminal Code Sec 342.1",
-  },
-  {
-    id: "ee",
-    name: "Estonia",
-    code: "EST",
-    lat: 58.6,
-    lng: 25.0,
-    strictness: 9.4,
-    strictnessRationale: "24h RIA breach notification, immutable KSI blockchain state registers, and criminal statutes penalizing offensive malware creation.",
-    pendingCount: 1,
-    breachWindow: "24h RIA Mandate",
-    leadAgency: "Information System Authority",
-    primaryLaw: "Penal Code Chapter 14",
-  },
-  {
-    id: "jp",
-    name: "Japan",
-    code: "JPN",
-    lat: 36.2,
-    lng: 138.2,
-    strictness: 8.5,
-    strictnessRationale: "Criminalizes the creation or possession of virus code without deployment, while advancing Active Cyber Defense counter-intrusion laws.",
-    pendingCount: 1,
-    breachWindow: "3-5 Days to PPC",
-    leadAgency: "NPA Cyber Bureau & NISC",
-    primaryLaw: "Penal Code Article 161-2",
-  },
-  {
-    id: "za",
-    name: "South Africa",
-    code: "ZAF",
-    lat: -30.5,
-    lng: 25.0,
-    strictness: 8.0,
-    strictnessRationale: "Africa benchmark statutory cyber law, providing up to 15 years for cyber extortion and hacking, with mandatory service provider reporting.",
-    pendingCount: 1,
-    breachWindow: "As Soon as Possible (POPIA)",
-    leadAgency: "Cybercrime Hub (SAPS)",
-    primaryLaw: "Cybercrimes Act No. 19",
-  },
-];
+// 12 Sovereign Nodes with exact geographic pin coordinates (in 960x480 equirectangular space)
+// x = (lng + 180) * (960 / 360), y = (90 - lat) * (480 / 180)
+const JURISDICTION_PINS: Record<
+  string,
+  { name: string; code: string; lat: number; lng: number; x: number; y: number }
+> = {
+  us: { name: "United States", code: "USA", lat: 39.5, lng: -98.35, x: 217.7, y: 134.7 },
+  in: { name: "India", code: "IND", lat: 22.5, lng: 78.9, x: 690.4, y: 180.0 },
+  eu: { name: "European Union", code: "EU", lat: 50.8, lng: 10.4, x: 507.7, y: 104.5 },
+  uk: { name: "United Kingdom", code: "GBR", lat: 54.5, lng: -3.4, x: 470.9, y: 94.7 },
+  sg: { name: "Singapore", code: "SGP", lat: 1.35, lng: 103.8, x: 756.8, y: 236.4 },
+  cn: { name: "China", code: "CHN", lat: 35.8, lng: 104.1, x: 757.6, y: 144.5 },
+  ae: { name: "United Arab Emirates", code: "ARE", lat: 24.4, lng: 54.3, x: 624.8, y: 174.9 },
+  au: { name: "Australia", code: "AUS", lat: -25.2, lng: 133.7, x: 836.5, y: 307.2 },
+  ca: { name: "Canada", code: "CAN", lat: 56.1, lng: -106.3, x: 196.5, y: 90.4 },
+  ee: { name: "Estonia", code: "EST", lat: 58.6, lng: 25.0, x: 546.7, y: 83.7 },
+  jp: { name: "Japan", code: "JPN", lat: 36.2, lng: 138.2, x: 848.5, y: 143.5 },
+  za: { name: "South Africa", code: "ZAF", lat: -30.5, lng: 25.0, x: 546.7, y: 321.3 },
+};
 
-// Rich Library of 20+ Cross-Border Threat Vectors Categorized by Attack Type
-const THREAT_VECTORS: ThreatLink[] = [
-  // 1. Ransomware & Extortion
+// 18 Diverse Threat Vectors across 6 Distinct Threat Categories
+const GLOBAL_THREAT_VECTORS: ThreatLink[] = [
+  // 1. 🔴 Ransomware & Extortion (#DC2626)
   {
     id: "rw-1",
     sourceId: "cn",
-    sourceName: "LockBit Syndicate Hub",
+    sourceName: "LockBit Syndicate",
     targetId: "in",
     targetName: "India",
     category: "ransomware",
     categoryLabel: "Ransomware",
-    incidentType: "Double-Extortion Health & Energy Vault Ransomware",
+    color: "#DC2626",
+    incidentType: "Double-Extortion Health Sector & Hospital Vault Attack",
+    protocolTag: "SMBv3 / CVE-2024-3094",
     statutoryContext: "IT Act Sec 66 & BNS Sec 318",
     severity: "critical",
   },
   {
     id: "rw-2",
     sourceId: "eu",
-    sourceName: "BlackCat/ALPHV Cluster",
+    sourceName: "BlackCat/ALPHV Cell",
     targetId: "us",
     targetName: "United States",
     category: "ransomware",
     categoryLabel: "Ransomware",
-    incidentType: "Critical Healthcare Payment Network Extortion",
+    color: "#DC2626",
+    incidentType: "Critical Healthcare Payment Processing Clearing Extortion",
+    protocolTag: "RDP Tunnel / Cobalt Strike",
     statutoryContext: "CFAA 18 U.S.C. § 1030(a)(7)",
     severity: "critical",
   },
   {
     id: "rw-3",
     sourceId: "za",
-    sourceName: "Akira Ransomware Cell",
+    sourceName: "Akira Cyber Syndicate",
     targetId: "uk",
     targetName: "United Kingdom",
     category: "ransomware",
     categoryLabel: "Ransomware",
-    incidentType: "Municipal Database Encryption & Exfiltration",
+    color: "#DC2626",
+    incidentType: "Municipal Government Database Encryption & Exfiltration",
+    protocolTag: "VPN Gateway Zero-Day",
     statutoryContext: "Computer Misuse Act Sec 3",
     severity: "high",
   },
   {
     id: "rw-4",
     sourceId: "ca",
-    sourceName: "Medusa Cyber Syndicate",
+    sourceName: "Medusa Extortion Ring",
     targetId: "au",
     targetName: "Australia",
     category: "ransomware",
     categoryLabel: "Ransomware",
-    incidentType: "Telecommunications Customer Data Vault Extortion",
+    color: "#DC2626",
+    incidentType: "Telecommunications Customer Data Vault Breach",
+    protocolTag: "Cloud API Token Abuse",
     statutoryContext: "SOCI Act 2018 Mandatory Notice",
     severity: "high",
   },
 
-  // 2. Critical Infrastructure APTs
+  // 2. 🟠 Critical Infrastructure APT (#EA580C)
   {
     id: "ci-1",
     sourceId: "cn",
-    sourceName: "Volt Typhoon Cluster",
+    sourceName: "Volt Typhoon APT",
     targetId: "us",
     targetName: "United States",
     category: "critical_infra",
     categoryLabel: "Critical Infra APT",
-    incidentType: "Living-off-the-Land Water Utility Compromise",
-    statutoryContext: "CIRCIA 72h Notice & CFAA § 1030",
+    color: "#EA580C",
+    incidentType: "Living-off-the-Land Water Utility SCADA Infiltration",
+    protocolTag: "SOHO Router Proxy Mesh",
+    statutoryContext: "CIRCIA 72h Notice / CFAA § 1030",
     severity: "critical",
   },
   {
     id: "ci-2",
     sourceId: "ee",
-    sourceName: "Sandworm APT Unit",
+    sourceName: "Sandworm Unit",
     targetId: "eu",
-    targetName: "Germany (EU)",
+    targetName: "European Union",
     category: "critical_infra",
     categoryLabel: "Critical Infra APT",
-    incidentType: "Power Transmission Substation Disruptive Malware",
+    color: "#EA580C",
+    incidentType: "High-Voltage Power Transmission Substation Malware",
+    protocolTag: "IEC-60870-5-104 Protocol",
     statutoryContext: "EU NIS2 Directive Art. 21",
     severity: "critical",
   },
@@ -302,33 +163,39 @@ const THREAT_VECTORS: ThreatLink[] = [
     targetName: "Estonia",
     category: "critical_infra",
     categoryLabel: "Critical Infra APT",
-    incidentType: "e-Governance X-Road Distributed Denial of Service",
+    color: "#EA580C",
+    incidentType: "e-Governance X-Road Distributed Flood & Spoofing",
+    protocolTag: "Encrypted DNS Tunneling",
     statutoryContext: "Estonian Penal Code § 207",
     severity: "critical",
   },
   {
     id: "ci-4",
     sourceId: "ae",
-    sourceName: "State-Sponsored Cell",
+    sourceName: "State Cyber Cell",
     targetId: "sg",
     targetName: "Singapore",
     category: "critical_infra",
     categoryLabel: "Critical Infra APT",
-    incidentType: "Maritime Port Automated Scheduling Sabotage",
-    statutoryContext: "Cybersecurity Act 2024 (2h CII Notice)",
+    color: "#EA580C",
+    incidentType: "Maritime Port Automated Container Scheduling Sabotage",
+    protocolTag: "Industrial OT Modbus",
+    statutoryContext: "Cybersecurity Act 2024 (2h CII)",
     severity: "high",
   },
 
-  // 3. AI & Deepfake Financial Scams
+  // 3. 🟣 AI Deepfake & Financial Wire Fraud (#9333EA)
   {
     id: "ai-1",
     sourceId: "in",
-    sourceName: "Synthetic Scam Syndicate",
+    sourceName: "Synthetic Media Syndicate",
     targetId: "ae",
     targetName: "United Arab Emirates",
     category: "ai_deepfake",
     categoryLabel: "AI & Deepfake",
-    incidentType: "Executive Voice-Cloning Banking Wire Transfer",
+    color: "#9333EA",
+    incidentType: "Executive Voice-Cloning Banking Wire Transfer ($12M USD)",
+    protocolTag: "Voice Latent Diffusion",
     statutoryContext: "Decree-Law No. 34 Art. 44",
     severity: "high",
   },
@@ -340,36 +207,72 @@ const THREAT_VECTORS: ThreatLink[] = [
     targetName: "Singapore",
     category: "ai_deepfake",
     categoryLabel: "AI & Deepfake",
-    incidentType: "Synthetic Biometric Identity KYC Bypass",
+    color: "#9333EA",
+    incidentType: "Synthetic Biometric Identity KYC Liveness Bypass",
+    protocolTag: "Real-Time Face Morphing",
     statutoryContext: "IMDA Generative AI Directives",
     severity: "high",
   },
   {
     id: "ai-3",
     sourceId: "us",
-    sourceName: "Synthetic Media Group",
+    sourceName: "Synthetic Audio Cell",
     targetId: "ca",
     targetName: "Canada",
     category: "ai_deepfake",
     categoryLabel: "AI & Deepfake",
-    incidentType: "AI Voice Emulation Kidnapping Extortion",
+    color: "#9333EA",
+    incidentType: "AI Voice Emulation Family Extortion & Kidnapping Hoax",
+    protocolTag: "Neural Audio Synthesis",
     statutoryContext: "Criminal Code Sec 342.1 & Bill C-27",
     severity: "high",
   },
   {
     id: "ai-4",
     sourceId: "jp",
-    sourceName: "Prompt Injection Actors",
+    sourceName: "Adversarial AI Actors",
     targetId: "us",
     targetName: "United States",
     category: "ai_deepfake",
     categoryLabel: "AI & Deepfake",
-    incidentType: "Autonomous LLM Jailbreak & Corporate Exfiltration",
+    color: "#9333EA",
+    incidentType: "Autonomous LLM Jailbreak & Corporate Vault Exfiltration",
+    protocolTag: "Indirect Prompt Injection",
     statutoryContext: "CFAA Exceeding Authorized Access",
     severity: "elevated",
   },
 
-  // 4. State-Sponsored Espionage
+  // 4. 🔵 DDoS & Volumetric Floods (#0284C7)
+  {
+    id: "ddos-1",
+    sourceId: "cn",
+    sourceName: "Mirai IoT Botnet",
+    targetId: "sg",
+    targetName: "Singapore",
+    category: "ddos",
+    categoryLabel: "DDoS Floods",
+    color: "#0284C7",
+    incidentType: "1.8 Tbps Volumetric Gateway Flood Targeting Financial Clearing",
+    protocolTag: "UDP / NTP Amplification",
+    statutoryContext: "Cybersecurity Act 2024",
+    severity: "high",
+  },
+  {
+    id: "ddos-2",
+    sourceId: "us",
+    sourceName: "DarkGate Amplification",
+    targetId: "uk",
+    targetName: "United Kingdom",
+    category: "ddos",
+    categoryLabel: "DDoS Floods",
+    color: "#0284C7",
+    incidentType: "Government Public Service Portal Distributed Outage",
+    protocolTag: "HTTPS POST Flood",
+    statutoryContext: "Computer Misuse Act Sec 3",
+    severity: "high",
+  },
+
+  // 5. 🟡 State-Sponsored Espionage (#D97706)
   {
     id: "esp-1",
     sourceId: "cn",
@@ -378,7 +281,9 @@ const THREAT_VECTORS: ThreatLink[] = [
     targetName: "Japan",
     category: "espionage",
     categoryLabel: "State Espionage",
-    incidentType: "Cryptocurrency Clearing Vault Heist",
+    color: "#D97706",
+    incidentType: "Cryptocurrency Exchange Cold-Storage Vault Infiltration",
+    protocolTag: "Custom DLL Sideloading",
     statutoryContext: "Penal Code Art. 161-2 & Active Defense",
     severity: "critical",
   },
@@ -390,83 +295,55 @@ const THREAT_VECTORS: ThreatLink[] = [
     targetName: "European Union",
     category: "espionage",
     categoryLabel: "State Espionage",
-    incidentType: "Diplomatic Communications Credential Harvest",
+    color: "#D97706",
+    incidentType: "Diplomatic Mission Cloud Communications Credential Harvest",
+    protocolTag: "OAuth Phishing Token Steal",
     statutoryContext: "NIS2 Art. 21 / German StGB § 202a",
     severity: "high",
   },
   {
     id: "esp-3",
-    sourceId: "us",
-    sourceName: "Storm-0558 Actors",
-    targetId: "uk",
-    targetName: "United Kingdom",
-    category: "espionage",
-    categoryLabel: "State Espionage",
-    incidentType: "Ministerial Cloud Exchange Token Forgery",
-    statutoryContext: "UK Computer Misuse Act Sec 2",
-    severity: "high",
-  },
-  {
-    id: "esp-4",
     sourceId: "cn",
     sourceName: "RedDelta Espionage Unit",
     targetId: "in",
     targetName: "India",
     category: "espionage",
     categoryLabel: "State Espionage",
-    incidentType: "National Power Load Dispatch Center Recon",
+    color: "#D97706",
+    incidentType: "National Power Load Dispatch Center Cyber Reconnaissance",
+    protocolTag: "ShadowPad Backdoor",
     statutoryContext: "IT Act Sec 66F (Cyber Terrorism)",
     severity: "critical",
   },
 
-  // 5. Supply Chain & Zero-Days
+  // 6. 🟢 Supply Chain Zero-Days (#16A34A)
   {
     id: "sc-1",
     sourceId: "au",
-    sourceName: "MOVEit Exploitation Group",
+    sourceName: "Cl0p Exploit Group",
     targetId: "ca",
     targetName: "Canada",
     category: "supply_chain",
     categoryLabel: "Supply Chain",
-    incidentType: "Zero-Day Managed File Transfer Infiltration",
+    color: "#16A34A",
+    incidentType: "Zero-Day Managed File Transfer Enterprise Data Theft",
+    protocolTag: "SQLi / Zero-Day Web Shell",
     statutoryContext: "Bill C-26 Critical Systems Protection",
     severity: "critical",
   },
   {
     id: "sc-2",
-    sourceId: "sg",
-    sourceName: "DarkGate Malware Ring",
-    targetId: "jp",
-    targetName: "Japan",
-    category: "supply_chain",
-    categoryLabel: "Supply Chain",
-    incidentType: "Third-Party Accounting SDK Poisoning",
-    statutoryContext: "Penal Code Virus Possession Art. 168-2",
-    severity: "high",
-  },
-  {
-    id: "sc-3",
     sourceId: "eu",
-    sourceName: "XZ Utils Backdoor Cluster",
+    sourceName: "XZ Utils Backdoor Cell",
     targetId: "us",
     targetName: "United States",
     category: "supply_chain",
     categoryLabel: "Supply Chain",
-    incidentType: "Open-Source Upstream SSH Daemon Compromise",
+    color: "#16A34A",
+    incidentType: "Open-Source Upstream SSH Daemon Compromise Attempt",
+    protocolTag: "Compromised Liblzma Build",
     statutoryContext: "CFAA 18 U.S.C. § 1030(a)(5)",
     severity: "critical",
-  },
-  {
-    id: "sc-4",
-    sourceId: "in",
-    sourceName: "Commercial Spyware Actors",
-    targetId: "za",
-    targetName: "South Africa",
-    category: "supply_chain",
-    categoryLabel: "Supply Chain",
-    incidentType: "Zero-Click Mobile Baseband Surveillance Exploit",
-    statutoryContext: "Cybercrimes Act No. 19 Interception",
-    severity: "high",
   },
 ];
 
@@ -492,47 +369,44 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  // In-Map Inspector Drawer state (Clean click UX!)
-  const [inspectedNode, setInspectedNode] = useState<JurisdictionNode | null>(null);
-  const [hoveredNode, setHoveredNode] = useState<JurisdictionNode | null>(null);
-  const [activeVectorIndex, setActiveVectorIndex] = useState(0);
+  // In-Map Inspector Drawer state (Clean, tactile UX)
+  const [inspectedCountryId, setInspectedCountryId] = useState<string | null>(null);
+  const [hoveredCountryId, setHoveredCountryId] = useState<string | null>(null);
+
+  // Live Threat Telemetry Event Log (rotates every 3 seconds)
+  const [telemetryEvents, setTelemetryEvents] = useState<ThreatLink[]>([]);
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
   const MAP_WIDTH = 960;
   const MAP_HEIGHT = 480;
 
-  // Equirectangular projection
-  const project = (lat: number, lng: number) => {
-    const x = (lng + 180) * (MAP_WIDTH / 360);
-    const y = (90 - lat) * (MAP_HEIGHT / 180);
-    return { x, y };
-  };
-
-  // Node Map lookup
-  const nodeMap = useMemo(() => {
-    const map = new Map<string, JurisdictionNode>();
-    JURISDICTION_NODES.forEach((node) => map.set(node.id, node));
+  // Country lookup map by id
+  const countryDataMap = useMemo(() => {
+    const map = new Map<string, CountryCyberLaw>();
+    countries.forEach((c) => map.set(c.id, c));
     return map;
-  }, []);
+  }, [countries]);
 
   // Filter threats by selected category
   const filteredThreats = useMemo(() => {
-    if (selectedThreatCategory === "all") return THREAT_VECTORS;
-    return THREAT_VECTORS.filter((t) => t.category === selectedThreatCategory);
+    if (selectedThreatCategory === "all") return GLOBAL_THREAT_VECTORS;
+    return GLOBAL_THREAT_VECTORS.filter((t) => t.category === selectedThreatCategory);
   }, [selectedThreatCategory]);
 
-  // Cycle active highlighted threat link
+  // Live Telemetry Event Stream rotation
   useEffect(() => {
-    if (filteredThreats.length === 0) return;
-    const timer = setInterval(() => {
-      setActiveVectorIndex((prev) => (prev + 1) % filteredThreats.length);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, [filteredThreats.length]);
-
-  const currentActiveLink =
-    filteredThreats[activeVectorIndex % (filteredThreats.length || 1)] || filteredThreats[0];
+    setTelemetryEvents(GLOBAL_THREAT_VECTORS.slice(0, 5));
+    const interval = setInterval(() => {
+      setTelemetryEvents((prev) => {
+        const nextIdx = Math.floor(Math.random() * GLOBAL_THREAT_VECTORS.length);
+        const nextItem = GLOBAL_THREAT_VECTORS[nextIdx];
+        const filtered = prev.filter((item) => item.id !== nextItem.id);
+        return [nextItem, ...filtered].slice(0, 5);
+      });
+    }, 2800);
+    return () => clearInterval(interval);
+  }, []);
 
   // Pan Handlers with smooth inertia tracking
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -556,7 +430,7 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
   const handleReset = () => {
     setZoom(1);
     setPan({ x: 0, y: 0 });
-    setInspectedNode(null);
+    setInspectedCountryId(null);
   };
 
   // Preset continental camera focuses
@@ -589,26 +463,28 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
     setZoom((prev) => Math.min(Math.max(prev * zoomFactor, 0.8), 5.0));
   };
 
-  // Click Country Node -> Smooth Focus & Slide-out In-Map Inspector Drawer
-  const handleNodeClick = (node: JurisdictionNode) => {
-    setInspectedNode(node);
-    const pos = project(node.lat, node.lng);
-    const targetPanX = MAP_WIDTH / 2 - pos.x;
-    const targetPanY = MAP_HEIGHT / 2 - pos.y;
-    setPan({ x: targetPanX * 0.7, y: targetPanY * 0.7 });
-    setZoom((prev) => Math.max(prev, 1.6));
+  // Click Country -> Smooth Focus & Slide-out In-Map Inspector Drawer
+  const handleCountryClick = (jurisdictionId: string) => {
+    setInspectedCountryId(jurisdictionId);
+    const pin = JURISDICTION_PINS[jurisdictionId];
+    if (pin) {
+      const targetPanX = MAP_WIDTH / 2 - pin.x;
+      const targetPanY = MAP_HEIGHT / 2 - pin.y;
+      setPan({ x: targetPanX * 0.7, y: targetPanY * 0.7 });
+      setZoom((prev) => Math.max(prev, 1.7));
+    }
   };
 
-  // Compute 3D Parabolic Curved Arcs with Ground Shadows
-  const arcPaths = useMemo(() => {
+  // Compute 3D Parabolic Curved Arcs with Ground Shadows for SIMULTANEOUS active streams
+  const activeArcs = useMemo(() => {
     return filteredThreats
       .map((link, idx) => {
-        const source = nodeMap.get(link.sourceId);
-        const target = nodeMap.get(link.targetId);
-        if (!source || !target) return null;
+        const sourcePin = JURISDICTION_PINS[link.sourceId];
+        const targetPin = JURISDICTION_PINS[link.targetId];
+        if (!sourcePin || !targetPin) return null;
 
-        const p1 = project(source.lat, source.lng);
-        const p2 = project(target.lat, target.lng);
+        const p1 = { x: sourcePin.x, y: sourcePin.y };
+        const p2 = { x: targetPin.x, y: targetPin.y };
 
         const mx = (p1.x + p2.x) / 2;
         const my = (p1.y + p2.y) / 2;
@@ -616,8 +492,8 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
         const dy = p2.y - p1.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        // 3D Parabolic height scales with geographic distance
-        const arcHeight = Math.min(Math.max(distance * 0.38, 45), 150);
+        // 3D Parabolic altitude scales with geographic distance
+        const arcHeight = Math.min(Math.max(distance * 0.38, 40), 160);
 
         // Elevated peak vertex
         const cx = mx;
@@ -625,14 +501,15 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
 
         // Ground trace path along the map plane
         const groundPath = `M ${p1.x.toFixed(1)} ${p1.y.toFixed(1)} L ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
-        // 3D Parabolic curve arching above the plane
+        // Elevated 3D parabolic trajectory
         const parabolicPath = `M ${p1.x.toFixed(1)} ${p1.y.toFixed(1)} Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
 
-        const isFocused = inspectedNode
-          ? link.sourceId === inspectedNode.id || link.targetId === inspectedNode.id
-          : true;
+        // Animation duration varies slightly so multiple missiles travel asynchronously!
+        const duration = (2.0 + (idx % 4) * 0.4).toFixed(1) + "s";
 
-        const isCurrentActive = idx === activeVectorIndex % filteredThreats.length;
+        const isFocused = inspectedCountryId
+          ? link.sourceId === inspectedCountryId || link.targetId === inspectedCountryId
+          : true;
 
         return {
           ...link,
@@ -641,47 +518,58 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
           sourcePos: p1,
           targetPos: p2,
           isFocused,
-          isActive: isCurrentActive,
+          duration,
         };
       })
       .filter(Boolean);
-  }, [filteredThreats, nodeMap, activeVectorIndex, inspectedNode]);
+  }, [filteredThreats, inspectedCountryId]);
 
-  // Color helper in warm editorial tones
-  const getNodeColor = (node: JurisdictionNode) => {
+  // Color helper for Strictness Heatmap mode
+  const getCountryFill = (jurisdictionId: string | null) => {
+    if (!jurisdictionId) return "#E8E2D6"; // Neutral landmass
+    const country = countryDataMap.get(jurisdictionId);
+    if (!country) return "#E8E2D6";
+
     if (mapMode === "strictness") {
-      if (node.strictness >= 9.2) return "#C2410C"; // Severe (terracotta)
-      if (node.strictness >= 8.7) return "#B45309"; // High (warm amber)
-      return "#7C4A27"; // Moderate (cognac brown)
+      if (country.strictnessScore >= 9.2) return "#F97316"; // Severe terracotta
+      if (country.strictnessScore >= 8.7) return "#FBBF24"; // High amber
+      return "#D97706"; // Moderate cognac
     }
+
     if (mapMode === "pending") {
-      return node.pendingCount > 0 ? "#B45309" : "#A8A29E";
+      return country.pendingOrDraftActs && country.pendingOrDraftActs.length > 0
+        ? "#FDE68A"
+        : "#E8E2D6";
     }
-    return "#7C4A27";
+
+    // Default connection mode
+    if (inspectedCountryId === jurisdictionId) return "#D6CEBF";
+    if (hoveredCountryId === jurisdictionId) return "#DFD7CA";
+    return "#E8E2D6";
   };
 
-  // Connected threats for currently inspected country
+  const inspectedCountry = inspectedCountryId ? countryDataMap.get(inspectedCountryId) : null;
   const inspectedThreats = useMemo(() => {
-    if (!inspectedNode) return [];
-    return THREAT_VECTORS.filter(
-      (t) => t.sourceId === inspectedNode.id || t.targetId === inspectedNode.id
+    if (!inspectedCountryId) return [];
+    return GLOBAL_THREAT_VECTORS.filter(
+      (t) => t.sourceId === inspectedCountryId || t.targetId === inspectedCountryId
     );
-  }, [inspectedNode]);
+  }, [inspectedCountryId]);
 
   return (
     <div className="rounded-2xl bg-white border border-[#EAE5DB] shadow-sm overflow-hidden font-sans">
-      {/* Top Header: Title, Mode Toggles & Region Presets */}
+      {/* Top Controls Header: Mode Switchers, Threat Category Filters & Continental Focus */}
       <div className="px-6 py-4 bg-[#FAF7F2] border-b border-[#EAE5DB] space-y-3">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#C2410C] animate-pulse" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#DC2626] animate-pulse" />
               <h2 className="text-base font-bold text-[#1C1917] tracking-tight">
                 Global Cyber Law & Cross-Border Threat Map
               </h2>
             </div>
             <p className="text-xs text-[#78716C] mt-0.5">
-              Scroll or pinch to zoom, drag to pan continents. 3D parabolic curves trace active cross-border attack vectors.
+              177 sovereign nations with live cross-border cyber threat streams. Hover or click any nation to inspect legal posture.
             </p>
           </div>
 
@@ -725,27 +613,28 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
           </div>
         </div>
 
-        {/* Threat Category Filter Chips (Only shown in Threat Vectors mode) */}
+        {/* Threat Category Filter Chips (Active when in Threat Vectors mode) */}
         {mapMode === "connections" && (
           <div className="flex items-center justify-between gap-3 pt-2 border-t border-[#EAE5DB]/60 overflow-x-auto text-xs">
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] uppercase font-bold text-[#78716C] shrink-0 mr-1">
-                Threat Filter:
+                Filter Threat Class:
               </span>
               {[
-                { id: "all", label: `All Vectors (${THREAT_VECTORS.length})` },
-                { id: "ransomware", label: "Ransomware" },
-                { id: "critical_infra", label: "Critical Infra APT" },
-                { id: "ai_deepfake", label: "AI & Deepfake" },
-                { id: "espionage", label: "State Espionage" },
-                { id: "supply_chain", label: "Supply Chain" },
+                { id: "all", label: `All Attacks (${GLOBAL_THREAT_VECTORS.length})`, color: "#7C4A27" },
+                { id: "ransomware", label: "🔴 Ransomware", color: "#DC2626" },
+                { id: "critical_infra", label: "🟠 Critical Infra APT", color: "#EA580C" },
+                { id: "ai_deepfake", label: "🟣 AI & Deepfake", color: "#9333EA" },
+                { id: "ddos", label: "🔵 DDoS Floods", color: "#0284C7" },
+                { id: "espionage", label: "🟡 State Espionage", color: "#D97706" },
+                { id: "supply_chain", label: "🟢 Supply Chain", color: "#16A34A" },
               ].map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setSelectedThreatCategory(cat.id as ThreatCategory)}
-                  className={`px-2.5 py-1 rounded-md text-[11px] font-medium whitespace-nowrap transition-colors ${
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all ${
                     selectedThreatCategory === cat.id
-                      ? "bg-[#7C4A27] text-white font-semibold shadow-sm"
+                      ? "bg-[#7C4A27] text-white shadow-sm"
                       : "bg-white text-[#78716C] hover:text-[#1C1917] border border-[#EAE5DB]"
                   }`}
                 >
@@ -754,8 +643,8 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
               ))}
             </div>
 
-            {/* Quick Regional Camera Jumps */}
-            <div className="hidden md:flex items-center gap-1 shrink-0 text-[10px] font-mono text-[#78716C]">
+            {/* Continental Camera Focus Shortcuts */}
+            <div className="hidden lg:flex items-center gap-1 shrink-0 text-[10px] font-mono text-[#78716C]">
               <span className="mr-1 uppercase font-bold">Focus:</span>
               <button onClick={() => focusContinent("world")} className="px-1.5 py-0.5 rounded hover:bg-[#F3EFE6]">Global</button>
               <button onClick={() => focusContinent("americas")} className="px-1.5 py-0.5 rounded hover:bg-[#F3EFE6]">Americas</button>
@@ -776,7 +665,7 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onWheel={handleWheel}
-        className={`relative w-full h-[460px] sm:h-[520px] select-none overflow-hidden bg-[#FBF9F5] ${
+        className={`relative w-full h-[480px] sm:h-[540px] select-none overflow-hidden bg-[#FBF9F5] ${
           isDragging ? "cursor-grabbing" : "cursor-grab"
         }`}
       >
@@ -819,21 +708,13 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
           }}
         >
           <defs>
-            {/* Luminous Gradient for Elevated 3D Arcs */}
-            <linearGradient id="arc3dGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#7C4A27" stopOpacity="0.7" />
-              <stop offset="50%" stopColor="#C2410C" stopOpacity="1" />
-              <stop offset="100%" stopColor="#EA580C" stopOpacity="0.9" />
-            </linearGradient>
-
-            {/* Strictness Glow Filter */}
-            <filter id="strictnessGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
+            <filter id="vectorGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2.5" result="blur" />
               <feComposite in="SourceGraphic" in2="blur" operator="over" />
             </filter>
           </defs>
 
-          {/* Latitude & Longitude Reference Graticule */}
+          {/* Latitude & Longitude Reference Graticules */}
           <g className="stroke-[#EAE5DB] stroke-[0.8] stroke-dasharray-[4 4]">
             <line x1="0" y1="240" x2={MAP_WIDTH} y2="240" />
             <line x1="0" y1="120" x2={MAP_WIDTH} y2="120" />
@@ -843,132 +724,98 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
             <line x1="720" y1="0" x2="720" y2={MAP_HEIGHT} />
           </g>
 
-          {/* HIGH-FIDELITY CONTINENTAL GEOGRAPHY (Warm Sand #EBE5DB on Canvas) */}
-          <g className="fill-[#EBE5DB] stroke-[#D6CEBF] stroke-[1] stroke-linejoin-round">
-            {/* North America */}
-            <path d="M 115 55 C 130 50, 190 45, 235 55 C 275 65, 305 90, 315 125 C 310 145, 290 170, 270 190 C 245 215, 220 240, 205 245 C 190 235, 175 200, 160 175 C 135 155, 115 140, 95 110 C 90 90, 100 65, 115 55 Z" />
-            {/* Alaska */}
-            <path d="M 60 70 C 80 65, 105 70, 115 85 C 105 105, 75 110, 60 95 Z" />
-            {/* Greenland */}
-            <path d="M 320 30 C 355 25, 395 35, 385 70 C 365 95, 335 85, 320 55 Z" />
-            {/* Central America & Caribbean */}
-            <path d="M 205 245 C 220 255, 245 270, 255 295 C 245 300, 235 285, 215 270 Z" />
-            <circle cx="280" cy="245" r="3" />
-            <circle cx="295" cy="255" r="2.5" />
+          {/* LAYER 1: AUTHENTIC NATURAL EARTH 177 SOVEREIGN COUNTRIES */}
+          <g className="stroke-[#D1C7B7] stroke-[0.6] stroke-linejoin-round">
+            {WORLD_MAP_PATHS.map((countryPath) => {
+              const jurId = countryPath.jurisdictionId;
+              const isHovered = jurId && hoveredCountryId === jurId;
+              const isInspected = jurId && inspectedCountryId === jurId;
+              const fill = getCountryFill(jurId);
 
-            {/* South America */}
-            <path d="M 255 295 C 285 300, 345 315, 350 365 C 355 410, 330 460, 295 480 C 275 450, 260 395, 250 345 C 245 315, 245 300, 255 295 Z" />
-
-            {/* Europe */}
-            <path d="M 445 75 C 475 70, 535 70, 555 95 C 565 120, 535 150, 505 160 C 480 165, 455 145, 440 120 C 430 95, 435 80, 445 75 Z" />
-            {/* British Isles */}
-            <path d="M 435 90 C 445 85, 450 105, 445 120 C 435 125, 425 115, 435 90 Z" />
-            {/* Scandinavia */}
-            <path d="M 485 45 C 505 40, 525 50, 520 80 C 500 90, 485 80, 485 45 Z" />
-            {/* Iberian Peninsula */}
-            <path d="M 425 130 C 445 130, 445 155, 435 165 C 420 160, 415 145, 425 130 Z" />
-            {/* Italy */}
-            <path d="M 470 135 C 480 140, 485 160, 480 170 C 470 165, 465 150, 470 135 Z" />
-
-            {/* Africa */}
-            <path d="M 450 175 C 495 170, 575 180, 590 230 C 605 280, 595 350, 550 425 C 515 415, 480 365, 460 315 C 440 260, 435 200, 450 175 Z" />
-            {/* Madagascar */}
-            <path d="M 605 340 C 615 335, 620 370, 610 390 C 600 385, 600 355, 605 340 Z" />
-
-            {/* Asia (Eurasia & Siberia) */}
-            <path d="M 555 70 C 635 60, 835 60, 875 105 C 895 140, 875 200, 825 230 C 785 250, 725 250, 675 240 C 625 230, 575 170, 555 110 Z" />
-            {/* Indian Subcontinent */}
-            <path d="M 665 190 C 695 185, 735 210, 730 260 C 720 295, 690 315, 675 300 C 660 265, 655 215, 665 190 Z" />
-            {/* Southeast Asia */}
-            <path d="M 765 240 C 795 235, 825 255, 815 285 C 795 300, 770 280, 765 240 Z" />
-            {/* Indonesian Archipelago & Philippines */}
-            <path d="M 780 305 C 810 300, 840 310, 830 325 C 810 330, 790 320, 780 305 Z" />
-            <path d="M 810 245 C 825 245, 830 270, 820 280 C 810 275, 805 260, 810 245 Z" />
-            {/* Japan Arc */}
-            <path d="M 855 130 C 875 135, 880 175, 865 195 C 850 185, 850 150, 855 130 Z" />
-
-            {/* Australia & Oceania */}
-            <path d="M 780 325 C 830 315, 895 325, 905 365 C 915 405, 885 445, 835 445 C 795 435, 765 395, 780 325 Z" />
-            {/* New Zealand */}
-            <path d="M 915 420 C 930 415, 935 445, 925 460 C 910 455, 910 435, 915 420 Z" />
+              return (
+                <path
+                  key={countryPath.id}
+                  d={countryPath.path}
+                  fill={fill}
+                  className={`transition-colors duration-150 ${
+                    jurId ? "cursor-pointer" : "cursor-default pointer-events-none"
+                  }`}
+                  stroke={isInspected ? "#7C4A27" : isHovered ? "#A8A29E" : "#D1C7B7"}
+                  strokeWidth={isInspected ? "1.5" : isHovered ? "1" : "0.6"}
+                  onMouseEnter={() => {
+                    if (jurId) setHoveredCountryId(jurId);
+                  }}
+                  onMouseLeave={() => {
+                    if (jurId) setHoveredCountryId(null);
+                  }}
+                  onClick={(e) => {
+                    if (jurId) {
+                      e.stopPropagation();
+                      handleCountryClick(jurId);
+                    }
+                  }}
+                />
+              );
+            })}
           </g>
 
-          {/* LAYER 1: 3D Parabolic Threat Vector Curves & Ground Shadows */}
+          {/* LAYER 2: 3D PARABOLIC THREAT VECTOR CURVES & ANIMATED PACKET STREAMS */}
           {mapMode === "connections" && (
             <g>
-              {arcPaths.map((arc: any) => {
+              {activeArcs.map((arc: any) => {
                 if (!arc) return null;
-                const isCurrent = arc.isActive;
-                const opacity = arc.isFocused ? (isCurrent ? 0.95 : 0.35) : 0.08;
+                const opacity = arc.isFocused ? 0.95 : 0.15;
 
                 return (
                   <g key={arc.id}>
-                    {/* 1. Ground Trace Shadow Line (Direct baseline on the plane) */}
+                    {/* Ground trace shadow along the map plane */}
                     <path
                       d={arc.groundPath}
                       fill="none"
                       stroke="#A8A29E"
-                      strokeWidth={isCurrent ? 1.5 : 0.8}
-                      strokeOpacity={opacity * 0.45}
+                      strokeWidth="0.8"
+                      strokeOpacity={opacity * 0.4}
                       strokeDasharray="3 3"
                     />
 
-                    {/* 2. Elevated 3D Parabolic Bezier Curve */}
+                    {/* Elevated 3D parabolic Bezier curve */}
                     <path
                       d={arc.parabolicPath}
                       fill="none"
-                      stroke={isCurrent ? "url(#arc3dGradient)" : "#7C4A27"}
-                      strokeWidth={isCurrent ? 2.8 : 1.2}
+                      stroke={arc.color}
+                      strokeWidth={arc.isFocused ? 2.4 : 1.2}
                       strokeOpacity={opacity}
-                      strokeDasharray={isCurrent ? "none" : "2 2"}
+                      strokeDasharray={arc.isFocused ? "none" : "2 2"}
                       className="transition-all duration-300"
                     />
 
-                    {/* 3. Animated Guided Missile Tracer Particle along the 3D parabolic trajectory */}
-                    {isCurrent && (
-                      <circle r="4" fill="#C2410C" filter="url(#strictnessGlow)">
+                    {/* Animated Traveling Packet Tracer along 3D Parabolic Curve */}
+                    {arc.isFocused && (
+                      <circle r="3.5" fill={arc.color} filter="url(#vectorGlow)">
                         <animateMotion
                           path={arc.parabolicPath}
-                          dur="2.4s"
+                          dur={arc.duration}
                           repeatCount="indefinite"
                         />
                       </circle>
                     )}
 
-                    {/* 4. Target Impact Concentric Radar Shockwaves */}
-                    {isCurrent && (
+                    {/* Target Impact Concentric Radar Shockwave */}
+                    {arc.isFocused && (
                       <g transform={`translate(${arc.targetPos.x}, ${arc.targetPos.y})`}>
-                        <circle r="5" fill="none" stroke="#C2410C" strokeWidth="1.8">
+                        <circle r="4" fill="none" stroke={arc.color} strokeWidth="1.5">
                           <animate
                             attributeName="r"
-                            from="5"
-                            to="26"
-                            dur="2s"
+                            from="4"
+                            to="24"
+                            dur={arc.duration}
                             repeatCount="indefinite"
                           />
                           <animate
                             attributeName="opacity"
                             from="0.9"
                             to="0"
-                            dur="2s"
-                            repeatCount="indefinite"
-                          />
-                        </circle>
-                        <circle r="4" fill="none" stroke="#EA580C" strokeWidth="1.2">
-                          <animate
-                            attributeName="r"
-                            from="3"
-                            to="16"
-                            dur="2s"
-                            begin="0.4s"
-                            repeatCount="indefinite"
-                          />
-                          <animate
-                            attributeName="opacity"
-                            from="0.8"
-                            to="0"
-                            dur="2s"
-                            begin="0.4s"
+                            dur={arc.duration}
                             repeatCount="indefinite"
                           />
                         </circle>
@@ -980,48 +827,37 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
             </g>
           )}
 
-          {/* LAYER 2: Sovereign Country Nodes & Heatmaps */}
+          {/* LAYER 3: SOVEREIGN JURISDICTION PINS */}
           <g>
-            {JURISDICTION_NODES.map((node) => {
-              const pos = project(node.lat, node.lng);
-              const isSelected = selectedCompareIds.includes(node.id);
-              const isInspected = inspectedNode?.id === node.id;
-              const isHovered = hoveredNode?.id === node.id;
-              const nodeColor = getNodeColor(node);
+            {Object.entries(JURISDICTION_PINS).map(([id, pin]) => {
+              const country = countryDataMap.get(id);
+              const isSelected = selectedCompareIds.includes(id);
+              const isInspected = inspectedCountryId === id;
+              const isHovered = hoveredCountryId === id;
 
               return (
                 <g
-                  key={node.id}
-                  transform={`translate(${pos.x}, ${pos.y})`}
+                  key={id}
+                  transform={`translate(${pin.x}, ${pin.y})`}
                   className="cursor-pointer group"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleNodeClick(node);
+                    handleCountryClick(id);
                   }}
-                  onMouseEnter={() => setHoveredNode(node)}
-                  onMouseLeave={() => setHoveredNode(null)}
+                  onMouseEnter={() => setHoveredCountryId(id)}
+                  onMouseLeave={() => setHoveredCountryId(null)}
                 >
-                  {/* Strictness Heatmap Radiant Aura */}
-                  {mapMode === "strictness" && (
+                  {/* Strictness Heatmap Aura */}
+                  {mapMode === "strictness" && country && (
                     <circle
-                      r={node.strictness * 3.6}
-                      fill={nodeColor}
-                      opacity={node.strictness >= 9.2 ? "0.32" : "0.22"}
-                      filter="url(#strictnessGlow)"
-                    />
-                  )}
-
-                  {/* Pending Acts Pulsing Hotspot */}
-                  {mapMode === "pending" && node.pendingCount > 0 && (
-                    <circle
-                      r="18"
-                      fill="#B45309"
+                      r={country.strictnessScore * 3.2}
+                      fill="#EA580C"
                       opacity="0.25"
-                      className="animate-ping"
+                      filter="url(#vectorGlow)"
                     />
                   )}
 
-                  {/* Inspected Active Pulse Ring */}
+                  {/* Inspected Pulse Halo */}
                   {isInspected && (
                     <circle
                       r="16"
@@ -1033,21 +869,21 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
                     />
                   )}
 
-                  {/* Node Outer Ring */}
+                  {/* Outer Pin Circle */}
                   <circle
-                    r={isSelected || isInspected || isHovered ? "7.5" : "5"}
+                    r={isSelected || isInspected || isHovered ? "7" : "4.8"}
                     fill="#FFFFFF"
-                    stroke={isInspected ? "#7C4A27" : nodeColor}
+                    stroke={isInspected ? "#7C4A27" : "#C2410C"}
                     strokeWidth={isSelected || isInspected ? "3" : "2"}
-                    className="transition-all duration-150"
+                    className="transition-all duration-150 shadow-sm"
                   />
 
-                  {/* Node Center Point */}
-                  <circle r="2.5" fill={isInspected ? "#7C4A27" : nodeColor} />
+                  {/* Pin Center */}
+                  <circle r="2.2" fill={isInspected ? "#7C4A27" : "#C2410C"} />
 
-                  {/* Clean Technical Label */}
+                  {/* Technical ISO Code Label */}
                   <text
-                    x="9"
+                    x="8"
                     y="3"
                     fill={isInspected || isHovered ? "#1C1917" : "#57534E"}
                     fontSize={isInspected ? "11" : "9.5"}
@@ -1056,15 +892,10 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
                     letterSpacing="0.04em"
                     className="pointer-events-none select-none drop-shadow-sm"
                   >
-                    {node.code}
-                    {mapMode === "strictness" && (
+                    {pin.code}
+                    {mapMode === "strictness" && country && (
                       <tspan fill="#C2410C" dx="3">
-                        {node.strictness.toFixed(1)}
-                      </tspan>
-                    )}
-                    {mapMode === "pending" && node.pendingCount > 0 && (
-                      <tspan fill="#B45309" dx="3">
-                        +{node.pendingCount}
+                        {country.strictnessScore.toFixed(1)}
                       </tspan>
                     )}
                   </text>
@@ -1074,26 +905,26 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
           </g>
         </svg>
 
-        {/* IN-MAP CONTEXTUAL INSPECTOR DRAWER (Rich Intelligence on Click) */}
-        {inspectedNode && (
-          <div className="absolute bottom-4 left-4 right-4 sm:right-auto sm:w-[410px] z-30 p-4 rounded-2xl bg-white/95 border border-[#EAE5DB] shadow-2xl backdrop-blur-md animate-in slide-in-from-bottom duration-200">
+        {/* IN-MAP CONTEXTUAL INSPECTOR DRAWER (Clean, Tactile, Scannable) */}
+        {inspectedCountry && (
+          <div className="absolute bottom-4 left-4 right-4 sm:right-auto sm:w-[420px] z-30 p-4 rounded-2xl bg-white/95 border border-[#EAE5DB] shadow-2xl backdrop-blur-md animate-in slide-in-from-bottom duration-200">
             <div className="flex items-start justify-between gap-3 mb-2.5">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-[#7C4A27] bg-[#F4EFE6] px-2 py-0.5 rounded border border-[#EAE5DB]">
-                    {inspectedNode.code}
-                  </span>
-                  <h3 className="font-bold text-sm text-[#1C1917] tracking-tight">
-                    {inspectedNode.name}
-                  </h3>
-                </div>
-                <span className="text-[11px] text-[#78716C] font-mono mt-0.5 block">
-                  Lead Authority: {inspectedNode.leadAgency}
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-bold text-[#7C4A27] bg-[#F4EFE6] px-2 py-0.5 rounded border border-[#EAE5DB]">
+                  {inspectedCountry.code}
                 </span>
+                <div>
+                  <h3 className="font-bold text-sm text-[#1C1917] tracking-tight">
+                    {inspectedCountry.country}
+                  </h3>
+                  <span className="text-[10px] text-[#78716C] block">
+                    Lead Authority: {inspectedCountry.leadEnforcementAgency}
+                  </span>
+                </div>
               </div>
 
               <button
-                onClick={() => setInspectedNode(null)}
+                onClick={() => setInspectedCountryId(null)}
                 className="p-1 rounded-lg text-[#78716C] hover:text-[#1C1917] hover:bg-[#FAF7F2] transition-colors"
                 title="Close Inspector"
               >
@@ -1101,43 +932,41 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
               </button>
             </div>
 
-            {/* Quick Metrics Strip */}
-            <div className="grid grid-cols-2 gap-2 my-2 text-xs">
-              <div className="p-2.5 rounded-xl bg-[#FAF7F2] border border-[#EAE5DB]">
-                <span className="text-[10px] text-[#78716C] block uppercase font-medium">Strictness Index</span>
-                <span className="font-bold text-[#C2410C] font-mono text-xs sm:text-sm">
-                  {inspectedNode.strictness.toFixed(1)} / 10
-                </span>
+            {/* Plain-English 1-Sentence Hero Verdict */}
+            <p className="text-xs text-[#292524] font-medium leading-relaxed my-2 py-1.5 px-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]">
+              &ldquo;{inspectedCountry.executiveVerdict}&rdquo;
+            </p>
+
+            {/* Quick 3-Pillar Spec Strip */}
+            <div className="grid grid-cols-3 gap-2 my-2 text-xs">
+              <div className="p-2 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]">
+                <span className="text-[9px] uppercase font-bold text-[#78716C] block">Notice</span>
+                <span className="font-bold text-[#1C1917] text-[11px] truncate block">{inspectedCountry.breachPill}</span>
               </div>
-              <div className="p-2.5 rounded-xl bg-[#FAF7F2] border border-[#EAE5DB]">
-                <span className="text-[10px] text-[#78716C] block uppercase font-medium">Breach Disclosure</span>
-                <span className="font-semibold text-[#1C1917] text-[11px] block truncate">
-                  {inspectedNode.breachWindow}
-                </span>
+              <div className="p-2 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]">
+                <span className="text-[9px] uppercase font-bold text-[#78716C] block">Max Jail</span>
+                <span className="font-bold text-[#C2410C] text-[11px] truncate block">{inspectedCountry.penaltyPill}</span>
+              </div>
+              <div className="p-2 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]">
+                <span className="text-[9px] uppercase font-bold text-[#78716C] block">AI Law</span>
+                <span className="font-bold text-[#1C1917] text-[11px] truncate block">{inspectedCountry.aiLawPill}</span>
               </div>
             </div>
 
-            {/* Strictness Rationale */}
-            <div className="p-2.5 rounded-xl bg-[#F5F2EB]/60 border border-[#EAE5DB] mb-2.5 text-xs">
-              <span className="text-[10px] uppercase font-bold text-[#7C4A27] block mb-0.5">
-                Strictness Justification:
-              </span>
-              <p className="text-[#44403C] text-[11px] leading-relaxed">
-                {inspectedNode.strictnessRationale}
-              </p>
-            </div>
-
-            {/* Connected Threats List */}
+            {/* Connected Active Threat Vectors */}
             <div className="mb-3 text-xs">
               <span className="text-[10px] uppercase font-semibold text-[#78716C] block mb-1">
-                Active Cross-Border Threat Vectors ({inspectedThreats.length}):
+                Active Cross-Border Threat Arcs ({inspectedThreats.length}):
               </span>
               <div className="max-h-24 overflow-y-auto space-y-1.5 pr-1">
                 {inspectedThreats.slice(0, 3).map((t) => (
                   <div key={t.id} className="p-1.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB] text-[11px]">
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-[#1C1917]">{t.sourceName} → {t.targetName}</span>
-                      <span className="text-[9px] uppercase font-mono px-1.5 py-0.2 rounded bg-[#EAE5DB] text-[#7C4A27]">
+                      <span
+                        className="text-[9px] uppercase font-mono px-1.5 py-0.2 rounded font-bold text-white"
+                        style={{ backgroundColor: t.color }}
+                      >
                         {t.categoryLabel}
                       </span>
                     </div>
@@ -1147,27 +976,24 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
               </div>
             </div>
 
-            {/* Action Buttons: Compare & Full Legal Dossier */}
+            {/* Action Buttons: Compare & Full Law Dossier */}
             <div className="flex items-center gap-2 pt-2.5 border-t border-[#EAE5DB]">
               <button
-                onClick={() => onToggleCompare(inspectedNode.id)}
+                onClick={() => onToggleCompare(inspectedCountry.id)}
                 className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all ${
-                  selectedCompareIds.includes(inspectedNode.id)
+                  selectedCompareIds.includes(inspectedCountry.id)
                     ? "bg-[#7C4A27] text-white shadow-sm"
                     : "bg-[#FAF7F2] hover:bg-[#F3EFE6] text-[#1C1917] border border-[#EAE5DB]"
                 }`}
               >
-                {selectedCompareIds.includes(inspectedNode.id) ? "Comparing" : "+ Compare"}
+                {selectedCompareIds.includes(inspectedCountry.id) ? "Comparing" : "+ Compare"}
               </button>
 
               <button
-                onClick={() => {
-                  const country = countries.find((c) => c.id === inspectedNode.id);
-                  if (country) onSelectCountry(country);
-                }}
+                onClick={() => onSelectCountry(inspectedCountry)}
                 className="py-2 px-3.5 rounded-xl text-xs font-semibold bg-[#7C4A27] hover:bg-[#63391C] text-white flex items-center gap-1 shadow-sm transition-all"
               >
-                <span>Full Legal Dossier</span>
+                <span>Full Law Dossier</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -1175,31 +1001,52 @@ export const WorldLegalMap: React.FC<WorldLegalMapProps> = ({
         )}
       </div>
 
-      {/* Understated Bottom Threat Vector Ticker */}
+      {/* LIVE SOC THREAT TELEMETRY FEED (Real-Time Animated Event Ticker) */}
       <div className="px-6 py-3 bg-[#FAF7F2] border-t border-[#EAE5DB] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
-        <div className="flex items-center gap-2 truncate text-[#78716C]">
-          <span className="text-[10px] font-mono uppercase font-bold text-[#7C4A27] bg-[#F3EFE6] px-2 py-0.5 rounded border border-[#EAE5DB]">
-            {currentActiveLink?.categoryLabel || "Cross-Border Link"}
+        <div className="flex items-center gap-2 truncate text-[#78716C] flex-1">
+          <span className="flex items-center gap-1 text-[10px] font-mono uppercase font-bold text-white bg-[#C2410C] px-2 py-0.5 rounded shadow-sm shrink-0">
+            <Radio className="w-3 h-3 animate-spin" />
+            <span>LIVE SOC FEED</span>
           </span>
-          {currentActiveLink && (
-            <div className="truncate text-xs">
-              <strong className="text-[#1C1917]">{currentActiveLink.sourceName}</strong>
-              <span className="text-[#C2410C] mx-1">→</span>
-              <strong className="text-[#1C1917]">{currentActiveLink.targetName}</strong>:{" "}
-              <span>{currentActiveLink.incidentType}</span>{" "}
-              <span className="text-[#78716C] font-mono">({currentActiveLink.statutoryContext})</span>
+
+          {telemetryEvents.length > 0 && (
+            <div className="truncate text-xs text-[#292524] flex items-center gap-1.5 animate-in fade-in duration-300">
+              <span
+                className="w-2 h-2 rounded-full shrink-0"
+                style={{ backgroundColor: telemetryEvents[0].color }}
+              />
+              <strong className="text-[#1C1917]">{telemetryEvents[0].sourceName}</strong>
+              <span className="text-[#C2410C]">→</span>
+              <strong className="text-[#1C1917]">{telemetryEvents[0].targetName}</strong>:{" "}
+              <span className="text-[#57534E]">{telemetryEvents[0].incidentType}</span>{" "}
+              <span className="font-mono text-[10px] text-[#78716C] bg-white px-1.5 py-0.2 rounded border border-[#EAE5DB]">
+                {telemetryEvents[0].protocolTag}
+              </span>
             </div>
           )}
         </div>
 
-        <div className="flex items-center gap-4 text-[11px] text-[#78716C] font-mono shrink-0">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#7C4A27]" />
-            <span>Jurisdiction</span>
+        {/* Legend of Threat Colors */}
+        <div className="flex items-center gap-3 text-[10px] font-mono text-[#78716C] shrink-0">
+          <div className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-[#DC2626]" />
+            <span>Ransomware</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#C2410C]" />
-            <span>Critical 3D Arc</span>
+          <div className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-[#EA580C]" />
+            <span>APT</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-[#9333EA]" />
+            <span>AI Scam</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-[#0284C7]" />
+            <span>DDoS</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-[#16A34A]" />
+            <span>Supply Chain</span>
           </div>
         </div>
       </div>

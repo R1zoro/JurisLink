@@ -2,7 +2,7 @@
 
 import React from "react";
 import { CountryCyberLaw } from "@/data/countries";
-import { Check, Plus, ArrowUpRight, ShieldAlert, Cpu, AlertTriangle, BookOpen, Clock } from "lucide-react";
+import { Check, Plus, ArrowRight, Clock, Shield, Cpu, BookOpen } from "lucide-react";
 
 interface CountryCardProps {
   country: CountryCyberLaw;
@@ -52,9 +52,9 @@ export const CountryCard: React.FC<CountryCardProps> = ({
   };
 
   return (
-    <div className="editorial-card p-5 flex flex-col justify-between font-sans bg-white border border-[#EAE5DB] rounded-2xl hover:border-[#D6CEBF] transition-all shadow-sm">
-      <div className="space-y-3.5">
-        {/* Header: Styled Country Badge, Title & Strictness Score */}
+    <div className="editorial-card p-5 flex flex-col justify-between font-sans bg-white border border-[#EAE5DB] rounded-2xl hover:border-[#D6CEBF] hover:shadow-md transition-all">
+      <div className="space-y-4">
+        {/* Card Header: Country, ISO, Strictness Badge */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <span
@@ -74,10 +74,9 @@ export const CountryCard: React.FC<CountryCardProps> = ({
 
           {/* Strictness Score Pill */}
           <div
-            className={`px-2.5 py-1 rounded-lg border font-mono text-xs font-bold shrink-0 text-right ${getStrictnessStyle(
+            className={`px-2.5 py-1 rounded-xl border font-mono text-xs font-bold shrink-0 text-right ${getStrictnessStyle(
               country.strictnessScore
             )}`}
-            title={`Strictness Index: ${country.strictnessScore}/10 (${country.strictnessRating})`}
           >
             <div>{country.strictnessScore.toFixed(1)} / 10</div>
             <div className="text-[9px] uppercase tracking-wider font-semibold opacity-85">
@@ -96,92 +95,60 @@ export const CountryCard: React.FC<CountryCardProps> = ({
           />
         </div>
 
-        {/* SUBSTANTIVE REASONING: Strictness Rationale Callout */}
-        <div className="p-3 rounded-xl bg-[#FAF7F2] border border-[#EAE5DB] text-xs">
-          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#7C4A27] mb-1">
-            <ShieldAlert className="w-3.5 h-3.5 text-[#7C4A27]" />
-            <span>Strictness Rationale</span>
-          </div>
-          <p className="text-[#44403C] text-[11px] leading-relaxed">
-            {country.strictnessRationale}
+        {/* 1-Sentence Plain-English Hero Verdict (Readable in 3 Seconds!) */}
+        <div className="py-1">
+          <p className="text-xs text-[#292524] font-medium leading-relaxed">
+            &ldquo;{country.executiveVerdict}&rdquo;
           </p>
         </div>
 
-        {/* Core Governing Statute (Full, unclipped) */}
-        <div>
-          <span className="text-[10px] uppercase font-semibold tracking-wider text-[#78716C] block mb-0.5">
-            Primary Governing Statute
-          </span>
-          <div className="text-xs font-bold text-[#1C1917] leading-snug">
-            {primaryStatute?.title}
-          </div>
-        </div>
-
-        {/* 2-Column Penalty & Breach Notice Specs (Zero Ellipsis Clipping) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-          <div className="p-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]/80 flex flex-col justify-between">
-            <span className="text-[#78716C] text-[10px] uppercase font-medium tracking-wider mb-0.5">
-              Statutory Maximum
-            </span>
-            <span className="font-bold text-[#C2410C] text-[11px] leading-snug">
-              {primaryStatute?.maxPrison}
-            </span>
-          </div>
-
-          <div className="p-2.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]/80 flex flex-col justify-between">
-            <span className="text-[#78716C] text-[10px] uppercase font-medium tracking-wider mb-0.5">
-              Breach Disclosure
-            </span>
-            <span className="font-semibold text-[#1C1917] text-[11px] leading-snug">
-              {country.conciseBreachMandate || country.breachReportingHours}
-            </span>
-          </div>
-        </div>
-
-        {/* AI CYBERCRIME GOVERNANCE: Substantive Rule Callout */}
-        <div className="p-3 rounded-xl bg-[#F5F2EB]/70 border border-[#EAE5DB] text-xs space-y-1">
-          <div className="flex items-center justify-between gap-2">
-            <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#7C4A27]">
-              <Cpu className="w-3.5 h-3.5 text-[#7C4A27]" />
-              <span>AI & Deepfake Governance</span>
-            </span>
-            <span
-              className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded ${
-                country.aiCybercrime.status === "enacted"
-                  ? "bg-[#E8F0EC] text-[#2D5A43] border border-[#C2D6CC]"
-                  : country.aiCybercrime.status === "pending"
-                  ? "bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A]"
-                  : "bg-[#F4EFE6] text-[#78716C]"
-              }`}
-            >
-              {country.aiCybercrime.status === "enacted"
-                ? "Enacted"
-                : country.aiCybercrime.status === "pending"
-                ? "Pending Bill"
-                : "General Criminal Law"}
-            </span>
-          </div>
-          <p className="text-[#57534E] text-[11px] leading-relaxed">
-            {country.aiGovernanceSummary}
-          </p>
-        </div>
-
-        {/* LEGISLATIVE PIPELINE (Active Unnotified / Draft Bills) */}
-        {country.pipelineHighlight && (
-          <div className="p-2.5 rounded-lg bg-[#FEF3C7]/40 border border-[#FDE68A] text-xs">
-            <div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-[#B45309] mb-0.5">
-              <AlertTriangle className="w-3 h-3 text-[#B45309]" />
-              <span>Legislative Pipeline (Pending Gazette)</span>
+        {/* The Big Three Scannable Pillars (3 Clean Micro-Specs) */}
+        <div className="grid grid-cols-3 gap-2 text-xs pt-1">
+          {/* Pillar 1: Breach Clock */}
+          <div className="p-2 rounded-xl bg-[#FAF7F2] border border-[#EAE5DB]/70 flex flex-col justify-between">
+            <div className="flex items-center gap-1 text-[10px] text-[#78716C] font-semibold uppercase tracking-wider">
+              <Clock className="w-3 h-3 text-[#7C4A27] shrink-0" />
+              <span>Breach Notice</span>
             </div>
-            <p className="text-[#78350F] text-[11px] leading-relaxed">
-              {country.pipelineHighlight}
-            </p>
+            <span className="font-bold text-[#1C1917] text-[11px] mt-1 truncate" title={country.breachPill}>
+              {country.breachPill}
+            </span>
           </div>
-        )}
+
+          {/* Pillar 2: Max Penalty */}
+          <div className="p-2 rounded-xl bg-[#FAF7F2] border border-[#EAE5DB]/70 flex flex-col justify-between">
+            <div className="flex items-center gap-1 text-[10px] text-[#78716C] font-semibold uppercase tracking-wider">
+              <Shield className="w-3 h-3 text-[#C2410C] shrink-0" />
+              <span>Max Penalty</span>
+            </div>
+            <span className="font-bold text-[#C2410C] text-[11px] mt-1 truncate" title={country.penaltyPill}>
+              {country.penaltyPill}
+            </span>
+          </div>
+
+          {/* Pillar 3: AI Cyber Law */}
+          <div className="p-2 rounded-xl bg-[#FAF7F2] border border-[#EAE5DB]/70 flex flex-col justify-between">
+            <div className="flex items-center gap-1 text-[10px] text-[#78716C] font-semibold uppercase tracking-wider">
+              <Cpu className="w-3 h-3 text-[#7C4A27] shrink-0" />
+              <span>AI Law</span>
+            </div>
+            <span className="font-semibold text-[#1C1917] text-[11px] mt-1 truncate" title={country.aiLawPill}>
+              {country.aiLawPill}
+            </span>
+          </div>
+        </div>
+
+        {/* Governing Statute Tag (Single Clean Line) */}
+        <div className="pt-1 text-xs flex items-center justify-between text-[#78716C]">
+          <span className="text-[10px] uppercase font-semibold">Primary Law:</span>
+          <span className="font-medium text-[#44403C] text-[11px] truncate max-w-[210px]" title={primaryStatute?.title}>
+            {primaryStatute?.title}
+          </span>
+        </div>
       </div>
 
-      {/* Action Buttons: Compare & Full Dossier */}
-      <div className="flex items-center gap-2 pt-4 border-t border-[#EAE5DB] mt-4">
+      {/* Action Buttons: Compare & View Law Dossier */}
+      <div className="flex items-center gap-2 pt-3.5 border-t border-[#EAE5DB] mt-4">
         <button
           onClick={() => onToggleCompare(country.id)}
           className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
@@ -210,8 +177,8 @@ export const CountryCard: React.FC<CountryCardProps> = ({
           title="Open complete statutory dossier with section breakdown and precedents"
         >
           <BookOpen className="w-3.5 h-3.5" />
-          <span>Full Legal Dossier</span>
-          <ArrowUpRight className="w-3.5 h-3.5 opacity-70" />
+          <span>View Law Dossier</span>
+          <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
     </div>

@@ -16,6 +16,11 @@ import {
   Filter,
   AlertTriangle,
   ArrowRight,
+  LayoutGrid,
+  Table as TableIcon,
+  BookOpen,
+  Check,
+  Plus,
 } from "lucide-react";
 
 export default function Home() {
@@ -23,6 +28,7 @@ export default function Home() {
     "matrix" | "compare" | "pending" | "ai" | "assistant"
   >("matrix");
 
+  const [layoutView, setLayoutView] = useState<"grid" | "table">("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedContinent, setSelectedContinent] = useState<string>("All");
   const [pendingOnly, setPendingOnly] = useState(false);
@@ -168,32 +174,157 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* Pending Acts Filter Toggle */}
-              <button
-                onClick={() => setPendingOnly(!pendingOnly)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
-                  pendingOnly
-                    ? "bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A] shadow-sm"
-                    : "bg-[#FAF7F2] text-[#78716C] hover:text-[#1C1917] border border-[#EAE5DB]"
-                }`}
-              >
-                <AlertTriangle className="w-3.5 h-3.5 text-[#B45309]" />
-                <span>Pending Bills Only</span>
-              </button>
+              {/* Pending Acts Filter Toggle & View Switcher */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPendingOnly(!pendingOnly)}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                    pendingOnly
+                      ? "bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A] shadow-sm"
+                      : "bg-[#FAF7F2] text-[#78716C] hover:text-[#1C1917] border border-[#EAE5DB]"
+                  }`}
+                >
+                  <AlertTriangle className="w-3.5 h-3.5 text-[#B45309]" />
+                  <span>Pending Bills Only</span>
+                </button>
+
+                {/* Grid vs Table View Switcher */}
+                <div className="flex items-center p-0.5 rounded-lg bg-[#FAF7F2] border border-[#EAE5DB]">
+                  <button
+                    onClick={() => setLayoutView("grid")}
+                    className={`p-1.5 rounded-md transition-all ${
+                      layoutView === "grid"
+                        ? "bg-white text-[#7C4A27] shadow-sm"
+                        : "text-[#78716C] hover:text-[#1C1917]"
+                    }`}
+                    title="Executive Cards Grid View"
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setLayoutView("table")}
+                    className={`p-1.5 rounded-md transition-all ${
+                      layoutView === "table"
+                        ? "bg-white text-[#7C4A27] shadow-sm"
+                        : "text-[#78716C] hover:text-[#1C1917]"
+                    }`}
+                    title="Executive Consolidated Table View"
+                  >
+                    <TableIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
             </div>
 
-            {/* Country Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filteredCountries.map((country) => (
-                <CountryCard
-                  key={country.id}
-                  country={country}
-                  isSelectedForCompare={selectedCompareIds.includes(country.id)}
-                  onToggleCompare={toggleCompare}
-                  onSelectCountry={(c) => setInspectCountry(c)}
-                />
-              ))}
-            </div>
+            {/* View Mode 1: Country Cards Grid */}
+            {layoutView === "grid" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {filteredCountries.map((country) => (
+                  <CountryCard
+                    key={country.id}
+                    country={country}
+                    isSelectedForCompare={selectedCompareIds.includes(country.id)}
+                    onToggleCompare={toggleCompare}
+                    onSelectCountry={(c) => setInspectCountry(c)}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* View Mode 2: Executive Consolidated Table View */}
+            {layoutView === "table" && (
+              <div className="bg-white rounded-2xl border border-[#EAE5DB] shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-[#FAF7F2] border-b border-[#EAE5DB] text-[#78716C] uppercase font-bold text-[10px] tracking-wider">
+                        <th className="py-3 px-4">Jurisdiction</th>
+                        <th className="py-3 px-3">Strictness</th>
+                        <th className="py-3 px-4">Core Legal Verdict</th>
+                        <th className="py-3 px-3">Notice Window</th>
+                        <th className="py-3 px-3">Max Sentence</th>
+                        <th className="py-3 px-3">AI Law</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#F4EFE6]">
+                      {filteredCountries.map((c) => {
+                        const isComparing = selectedCompareIds.includes(c.id);
+                        return (
+                          <tr
+                            key={c.id}
+                            className="hover:bg-[#FAF7F2]/60 transition-colors cursor-pointer"
+                            onClick={() => setInspectCountry(c)}
+                          >
+                            <td className="py-3 px-4">
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#F4EFE6] text-[#7C4A27] border border-[#EAE5DB]">
+                                  {c.code}
+                                </span>
+                                <div>
+                                  <div className="font-bold text-[#1C1917]">{c.country}</div>
+                                  <div className="text-[10px] text-[#78716C]">{c.continent}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3 px-3 whitespace-nowrap">
+                              <span className="font-mono font-bold text-[#C2410C]">
+                                {c.strictnessScore.toFixed(1)} / 10
+                              </span>
+                              <div className="text-[9px] uppercase font-semibold text-[#78716C]">
+                                {c.strictnessRating}
+                              </div>
+                            </td>
+                            <td className="py-3 px-4 text-[#44403C] max-w-sm">
+                              <p className="line-clamp-2 leading-relaxed">
+                                {c.executiveVerdict}
+                              </p>
+                            </td>
+                            <td className="py-3 px-3 font-semibold text-[#1C1917] whitespace-nowrap">
+                              {c.breachPill}
+                            </td>
+                            <td className="py-3 px-3 font-semibold text-[#C2410C] whitespace-nowrap">
+                              {c.penaltyPill}
+                            </td>
+                            <td className="py-3 px-3 whitespace-nowrap">
+                              <span
+                                className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
+                                  c.aiCybercrime.status === "enacted"
+                                    ? "bg-[#E8F0EC] text-[#2D5A43] border border-[#C2D6CC]"
+                                    : "bg-[#FEF3C7] text-[#B45309] border border-[#FDE68A]"
+                                }`}
+                              >
+                                {c.aiLawPill}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  onClick={() => toggleCompare(c.id)}
+                                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                                    isComparing
+                                      ? "bg-[#7C4A27] text-white"
+                                      : "bg-[#FAF7F2] hover:bg-[#F3EFE6] text-[#1C1917] border border-[#EAE5DB]"
+                                  }`}
+                                >
+                                  {isComparing ? "Comparing" : "+ Compare"}
+                                </button>
+                                <button
+                                  onClick={() => setInspectCountry(c)}
+                                  className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#FAF7F2] hover:bg-[#F3EFE6] text-[#7C4A27] border border-[#EAE5DB]"
+                                >
+                                  Dossier
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
             {filteredCountries.length === 0 && (
               <div className="py-16 text-center text-[#78716C] bg-white rounded-2xl border border-dashed border-[#EAE5DB]">

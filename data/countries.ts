@@ -33,6 +33,10 @@ export interface CountryCyberLaw {
   continent: "North America" | "Europe" | "Asia-Pacific" | "Middle East" | "Latin America" | "Africa";
   strictnessScore: number; // 1.0 to 10.0
   strictnessRating: "Very High" | "High" | "Moderate" | "Developing";
+  executiveVerdict: string; // 1-sentence plain-English takeaway readable in 3 seconds by anyone
+  breachPill: string; // Clean scannable badge
+  penaltyPill: string; // Clean scannable badge
+  aiLawPill: string; // Clean scannable badge
   strictnessRationale: string; // EXPLICIT REASONING answering: Why is this country rated this strict?
   strictnessFactors: StrictnessFactor[]; // Substantive breakdown
   breachReportingHours: string;
@@ -56,6 +60,10 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Asia-Pacific",
     strictnessScore: 8.4,
     strictnessRating: "High",
+    executiveVerdict: "Enforces the world's fastest 6-hour breach disclosure window, with life imprisonment for cyber terrorism under IT Act Sec 66F.",
+    breachPill: "6h (CERT-In)",
+    penaltyPill: "Life Sentence",
+    aiLawPill: "In Progress (Draft DIA)",
     strictnessRationale: "Driven by the world's fastest mandatory breach notification window (6 hours to CERT-In), compulsory 5-year log retention directives, and life imprisonment for Sec 66F cyber terrorism.",
     strictnessFactors: [
       { pillar: "Disclosure Urgency", weight: "Critical", rationale: "Strictest globally: 6-hour disclosure to CERT-In for 20+ incident categories." },
@@ -158,6 +166,10 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "North America",
     strictnessScore: 9.1,
     strictnessRating: "Very High",
+    executiveVerdict: "Global extraterritorial CFAA prosecutions with cumulative life sentences and mandatory 4-day SEC incident disclosures.",
+    breachPill: "72h CIRCIA / 4d SEC",
+    penaltyPill: "Life Imprisonment",
+    aiLawPill: "State Bans & EO 14110",
     strictnessRationale: "Reflects aggressive global extraterritorial reach under CFAA with cumulative life sentences, mandatory 4-day SEC Form 8-K disclosures for public firms, and CISA 72h CIRCIA critical infrastructure reporting.",
     strictnessFactors: [
       { pillar: "Extraterritorial Prosecution", weight: "Extreme", rationale: "Extensive DOJ cross-border indictments and arrests of foreign state and ransomware hackers." },
@@ -257,6 +269,10 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Europe",
     strictnessScore: 9.3,
     strictnessRating: "Very High",
+    executiveVerdict: "World's benchmark cybersecurity regime: personal C-suite liability for negligence, up to 4% turnover fines, and mandatory 24-hr incident alert.",
+    breachPill: "24h Warning / 72h GDPR",
+    penaltyPill: "Executive Bans / 4% Turnover",
+    aiLawPill: "Enacted (EU AI Act)",
     strictnessRationale: "Strictest globally due to personal C-suite liability for security non-compliance, up to 4% worldwide turnover fines under GDPR, and mandatory 24-hr initial incident alert under NIS2.",
     strictnessFactors: [
       { pillar: "Executive Debarment", weight: "Critical", rationale: "NIS2 Art. 20 allows temporary bans on C-level directors for persistent cybersecurity negligence." },
@@ -342,6 +358,10 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Europe",
     strictnessScore: 8.7,
     strictnessRating: "High",
+    executiveVerdict: "Severe criminal penalties including life imprisonment for critical infrastructure attacks, backed by Online Safety Act executive jail terms.",
+    breachPill: "72h to ICO",
+    penaltyPill: "Life Sentence",
+    aiLawPill: "Enacted (Online Safety)",
     strictnessRationale: "Features life imprisonment under CMA Sec 3ZA for cyberattacks causing catastrophic damage to national security, reinforced by Online Safety Act executive jail provisions and UK GDPR fines.",
     strictnessFactors: [
       { pillar: "Statutory Max Prison", weight: "Severe", rationale: "Life sentence under CMA Section 3ZA for cyber offenses threatening human welfare or defense." },
@@ -427,6 +447,10 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Asia-Pacific",
     strictnessScore: 9.2,
     strictnessRating: "Very High",
+    executiveVerdict: "Ultra-rapid 2-hour reporting for critical infrastructure, proactive ministerial takeover powers, and criminal bans on political deepfakes.",
+    breachPill: "2h Critical Infra",
+    penaltyPill: "Up to 20 Years",
+    aiLawPill: "Enacted (Elections Act)",
     strictnessRationale: "Enforces an ultra-strict 2-hour reporting mandate for Critical Information Infrastructure (CII), sentences up to 20 years for targeting national systems, and proactive ministerial takeover powers under 2024 amendments.",
     strictnessFactors: [
       { pillar: "Reporting Speed", weight: "Extreme", rationale: "Mandatory 2-hour incident reporting to CSA for Critical Information Infrastructure." },
@@ -512,6 +536,10 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Asia-Pacific",
     strictnessScore: 9.6,
     strictnessRating: "Very High",
+    executiveVerdict: "Total sovereign data localization, mandatory zero-day exploit reporting to the state before vendors, and life imprisonment for cyber sabotage.",
+    breachPill: "Immediate / 8h CAC",
+    penaltyPill: "Life Imprisonment",
+    aiLawPill: "Enacted (Deep Synthesis)",
     strictnessRationale: "Highest global strictness: total state data localization, mandatory zero-day vulnerability reporting to state before vendors, strict algorithmic licensing, and life imprisonment for state cyber sabotage.",
     strictnessFactors: [
       { pillar: "Vulnerability Control", weight: "Extreme", rationale: "Security researchers are legally barred from disclosing zero-day exploits abroad without prior state ministry approval." },
@@ -596,6 +624,10 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Middle East",
     strictnessScore: 9.0,
     strictnessRating: "Very High",
+    executiveVerdict: "Life imprisonment for compromising government systems, mandatory deportation of expatriate offenders, and strict anti-rumor laws.",
+    breachPill: "Within 72 Hours",
+    penaltyPill: "Life / Deportation",
+    aiLawPill: "Enacted (Decree-Law 34)",
     strictnessRationale: "Explicit life imprisonment for cyberattacks compromising sovereign government systems, mandatory deportation of expatriate offenders, and strict criminalization of online disinformation.",
     strictnessFactors: [
       { pillar: "Sovereign Target Sentences", weight: "Severe", rationale: "Article 10 imposes life imprisonment for unauthorized access to defense or state networks." },
@@ -668,6 +700,10 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Asia-Pacific",
     strictnessScore: 8.8,
     strictnessRating: "High",
+    executiveVerdict: "Unprecedented government powers to physically take over private corporate networks during crises, with mandatory 72-hour ransomware reporting.",
+    breachPill: "12h Critical / 72h General",
+    penaltyPill: "Up to 15 Years",
+    aiLawPill: "In Progress (Guardrails)",
     strictnessRationale: "Empowers the Australian Signals Directorate (ASD) to legally take physical control of private computer networks during catastrophic attacks, backed by mandatory 72h ransomware payment reporting.",
     strictnessFactors: [
       { pillar: "Intervention Powers", weight: "Extreme", rationale: "ASD possesses statutory authority to physically alter, access, or take over private corporate servers during crises." },
@@ -753,6 +789,10 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "North America",
     strictnessScore: 8.2,
     strictnessRating: "High",
+    executiveVerdict: "Critical infrastructure penalties up to $15M/day under Bill C-26, paired with proposed 5-year prison terms for deceitful AI under Bill C-27.",
+    breachPill: "As Soon as Feasible",
+    penaltyPill: "10 Years / $15M Day",
+    aiLawPill: "Pending (Bill C-27)",
     strictnessRationale: "Pending Bill C-26 introduces massive daily penalties (up to $15M/day) for critical infrastructure cyber failures, paired with proposed 5-year criminal prison sentences for harmful AI under Bill C-27.",
     strictnessFactors: [
       { pillar: "Daily Compliance Fines", weight: "Very High", rationale: "Bill C-26 establishes penalties up to $15 Million CAD per day for non-compliant critical cyber systems." },
@@ -837,6 +877,10 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Europe",
     strictnessScore: 9.4,
     strictnessRating: "Very High",
+    executiveVerdict: "World benchmark in state digital resilience: 24-hour breach notice, immutable blockchain-verified registers, and criminalized offensive exploit preparation.",
+    breachPill: "24h RIA Mandate",
+    penaltyPill: "Up to 10 Years",
+    aiLawPill: "Enacted (EU AI Act)",
     strictnessRationale: "World benchmark in state digital resilience: 24h RIA breach notification, immutable KSI blockchain verification for all state registers, and criminal statutes specifically penalizing offensive code creation.",
     strictnessFactors: [
       { pillar: "e-Governance Auditing", weight: "Extreme", rationale: "99% of public services run on X-Road with mandatory real-time cryptographic audit logging." },
@@ -921,6 +965,10 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Asia-Pacific",
     strictnessScore: 8.5,
     strictnessRating: "High",
+    executiveVerdict: "Notably criminalizes the creation or possession of virus code without deployment, while advancing Active Cyber Defense counter-intrusion laws.",
+    breachPill: "3-5 Days to PPC",
+    penaltyPill: "5-10 Years",
+    aiLawPill: "In Progress (AI Law)",
     strictnessRationale: "Explicitly criminalizes the mere creation or possession of malicious virus code without legitimate cause, and is currently pioneering 'Active Cyber Defense' laws allowing state counter-intrusions.",
     strictnessFactors: [
       { pillar: "Inchoate Offense Penalties", weight: "Very High", rationale: "Article 168-2 penalizes creating or obtaining malware code even before any deployment occurs." },
@@ -1004,6 +1052,10 @@ export const COUNTRIES_DATA: CountryCyberLaw[] = [
     continent: "Africa",
     strictnessScore: 8.0,
     strictnessRating: "High",
+    executiveVerdict: "Africa's benchmark cyber statute: up to 15 years for cyber extortion, with express criminal penalties for malicious communications and non-consensual deepfakes.",
+    breachPill: "As Soon as Possible",
+    penaltyPill: "Up to 15 Years",
+    aiLawPill: "Under Cybercrimes Act",
     strictnessRationale: "Africa's benchmark statutory cyber law, imposing up to 15 years for cyber extortion and hacking, with mandatory incident reporting duties for electronic communications providers.",
     strictnessFactors: [
       { pillar: "Cyber Extortion Terms", weight: "High", rationale: "Part II of Cybercrimes Act provides up to 15 years for ransomware encryption and extortion." },
